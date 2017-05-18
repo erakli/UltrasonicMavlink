@@ -8,6 +8,8 @@
     #define OLD_COMPILER
 #endif
 
+//#define DEBUG
+
 //==================================INITIALIZATIONS======================================//
 /* Initialization of the sensor pins. Library "NewPing"
    NewPing NAME (Trigger, Echo, MAXDIST);
@@ -32,10 +34,10 @@ uint16_t PitchOutTemp = 0;
 uint16_t RollOutTemp  = 0;
 uint8_t n             = 0;
 
-#define NDistances 5
+#define NDistances   5
 #define DistanceNext 100 // Distance to which control begins to act
-#define AltMin 70 // Height at which control begins
-#define DistMin 50 // Minimum difference between two distances of the same axis to move.
+#define AltMin       70  // Height at which control begins
+#define DistMin      50  // Minimum difference between two distances of the same axis to move.
 #define Compensation 800 // Time of inertia compensation in ms
 
 // Struct for saving the data of each sensor
@@ -95,15 +97,15 @@ void FSensors() {
 
 // Task that sends the motion commands according to the distances detected by the sensors
 void FRCOverride() {
+    // these variables can be moved inside RCOverride
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    uint16_t len;
 
     Pitch  = CheckPitch(Pitch);
     Roll   = CheckRoll(Roll);
 
     CompensationInertia();
-
+ 
     if ( Pitch != PitchOutTemp || Roll != RollOutTemp ) {
         n = 0;
         PitchOutTemp = Pitch;
@@ -113,7 +115,7 @@ void FRCOverride() {
         if (n == 4) {
             RollOut = RollOutTemp;
             PitchOut = PitchOutTemp;
-            RCOverride(&msg, len, buf, PitchOut, RollOut);
+            RCOverride(&msg, buf, PitchOut, RollOut);
         }
     }
 }
@@ -139,9 +141,11 @@ void MeasureSensors() {
 
 // The average of all distances is performed. The 0 are discarded
 void MeanDistances() {
+    int Total;
+    uint8_t Num;
     for (uint8_t i = 0; i < NSensors; i++) {
-        int Total   = 0;
-        uint8_t Num = 0;
+        Total = 0;
+        Num = 0;
         for (uint8_t j = 0; j < NDistances; j++) {
             if (Sensor[i].Distances[j] != 0  && Sensor[i].Distances[j] < 300) {
                 Total += Sensor[i].Distances[j];
@@ -154,7 +158,9 @@ void MeanDistances() {
             Sensor[i].MeanDistances = 0;
         }
     }
-    /*Serial.print("\n\rDistancias: ");
+    
+#ifdef DEBUG
+    Serial.print("\n\rDistancias: ");
     Serial.print(Sensor[0].MeanDistances);
     Serial.print(",");
     Serial.print(Sensor[1].MeanDistances);
@@ -164,7 +170,8 @@ void MeanDistances() {
     Serial.print(Sensor[3].MeanDistances);
     Serial.print(",");
     Serial.print(Sensor[4].MeanDistances);
-    Serial.print("cm\n\r");*/
+    Serial.print("cm\n\r");
+#endif
 }
 
 // Check if the mean obtained is below the threshold.
@@ -372,19 +379,38 @@ void FHeartBeat() {
     // Send the message (.write sends as bytes)
     Serial.write(buf, len);
 
-    //Serial.write("\n\rHeartBeat\n\r");
+#ifdef DEBUG
+    Serial.write("\n\rHeartBeat\n\r");
+#endif
 }
 
-void RCOverride(mavlink_message_t *msg, uint16_t len, uint8_t *buf, uint16_t PitchOut, uint16_t RollOut) {
-    //Empaqueta y envía los datos de Pitch y Roll calculados. Sólo envia si el dato es nuevo
-    mavlink_msg_rc_channels_override_pack(255, 0 , msg, 1, 0, RollOut, PitchOut, 0, 0, 0, 0, 0, 0);
-    len = mavlink_msg_to_send_buffer(buf, msg);
+
+#define SYSTEM_ID        255
+#define COMPONENT_ID     0
+#define TARGET_SYSTEM    1
+#define TARGET_COMPONENT 0
+#define CHAN3_RAW        0
+#define CHAN4_RAW        0
+#define CHAN5_RAW        0
+#define CHAN6_RAW        0
+#define CHAN7_RAW        0
+#define CHAN8_RAW        0
+
+void RCOverride(mavlink_message_t *msg, uint8_t *buf, uint16_t PitchOut, uint16_t RollOut) {
+    // Package and send calculated Pitch and Roll data. Only send if the data is new
+    mavlink_msg_rc_channels_override_pack(
+        SYSTEM_ID, COMPONENT_ID, msg, TARGET_SYSTEM, TARGET_COMPONENT, 
+        RollOut, PitchOut, CHAN3_RAW, CHAN4_RAW, CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
+    uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
     Serial.write(buf, len);
-    /*Serial.print("\n\rPitch: ");
+    
+#ifdef DEBUG
+    Serial.print("\n\rPitch: ");
     Serial.print(PitchOut);
     Serial.print(",");
     Serial.print(" Roll: ");
-    Serial.print(RollOut);*/
+    Serial.print(RollOut);
+#endif
 }
 
 /*//Arm the Dron
