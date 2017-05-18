@@ -8,18 +8,21 @@
     #define OLD_COMPILER
 #endif
 
-//#define DEBUG
+#define DEBUG
 
 //==================================INITIALIZATIONS======================================//
 /* Initialization of the sensor pins. Library "NewPing"
    NewPing NAME (Trigger, Echo, MAXDIST);
    The value of MAXDIST is the maximum distance the library measures.
    If any Echo returns a value greater than said distance, it is automatically discarded*/
-NewPing sonar0(3, 4, 300);
-NewPing sonar1(5, 6, 300);
-NewPing sonar2(7, 8, 300);
-NewPing sonar3(9, 10, 300);
-NewPing sonar4(11, 12, 100);
+#define MIN_DIST 300
+#define MIN_HEIGHT 10      // TODO: changed from 100
+
+NewPing sonar0(4, 5, MIN_DIST);
+NewPing sonar1(8, 9, MIN_DIST);
+NewPing sonar2(24, 25, MIN_DIST);
+NewPing sonar3(27, 28, MIN_DIST);
+NewPing sonar4(46, 47, MIN_HEIGHT);
 
 // Variable used to control the HeartBeat sent every second
 unsigned long HeartbeatTime = 0;
@@ -35,7 +38,7 @@ uint16_t RollOutTemp  = 0;
 uint8_t n             = 0;
 
 #define NDistances   5
-#define DistanceNext 100 // Distance to which control begins to act
+#define ControlDistanceMin 150 // Distance from which control begins to act // TODO: changed from 100
 #define AltMin       70  // Height at which control begins
 #define DistMin      50  // Minimum difference between two distances of the same axis to move.
 #define Compensation 800 // Time of inertia compensation in ms
@@ -44,19 +47,19 @@ uint8_t n             = 0;
 struct Sensors {
 #ifndef OLD_COMPILER
     uint16_t Distances[NDistances]  = {0};
-    uint16_t MeanDistances          = 0;
+    uint16_t MeanDistance          = 0;
     bool Close                      = false;
     bool Active                     = false;
     unsigned long CompensateTime    = 0;
 #else
     uint16_t Distances[NDistances];
-    uint16_t MeanDistances;
+    uint16_t MeanDistance;
     bool Close;
     bool Active;
     unsigned long CompensateTime;
     
     Sensors() : 
-        MeanDistances(0), 
+        MeanDistance(0), 
         Close(false), 
         Active(false), 
         CompensateTime(0) {
@@ -73,8 +76,28 @@ Sensors Sensor[NSensors];
 
 //====================================PROGRAM============================================//
 
+// on Arduino Mega we have several serial ports, so define
+// macro to make affinity
+#define APM_PORT    Serial2
+#define COM_PORT    Serial1
+
+#ifdef DEBUG
+int led = 13;
+bool state = false;
+#endif
+
+#ifdef DEBUG_SENSORS
+unsigned long last_time = 0;
+#define TIME_DELTA 400
+#endif
+
 void setup() {
-    Serial.begin(57600);
+    APM_PORT.begin(57600);
+    COM_PORT.begin(57600);
+#ifdef DEBUG
+    pinMode(led, OUTPUT);
+    digitalWrite(led, LOW);
+#endif
 }
 
 void loop() {
@@ -83,7 +106,7 @@ void loop() {
         FHeartBeat();
     }
     FSensors();
-    FRCOverride();
+    //FRCOverride();
 }
 
 //===========================================FUNCTIONS====================================//
@@ -101,8 +124,11 @@ void FRCOverride() {
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 
-    Pitch  = CheckPitch(Pitch);
-    Roll   = CheckRoll(Roll);
+    // TODO: temp assignment
+    Pitch = 0;
+    Roll = 0;
+//    Pitch  = CheckPitch(Pitch);
+    Roll   = CheckRoll(Roll);     // TODO: temp commented
 
     CompensationInertia();
  
@@ -120,7 +146,7 @@ void FRCOverride() {
     }
 }
 
-// Move each array of Distances in one position
+// Shift each array of Distances on one position to the right
 void ShiftArrays() {
     for (uint8_t i = 0; i < NSensors; i++) {
         for (uint8_t j = NDistances - 1; j > 0; j--) {
@@ -147,30 +173,37 @@ void MeanDistances() {
         Total = 0;
         Num = 0;
         for (uint8_t j = 0; j < NDistances; j++) {
-            if (Sensor[i].Distances[j] != 0  && Sensor[i].Distances[j] < 300) {
+            // TODO: second statement is meaningless
+            if (Sensor[i].Distances[j] != 0  && Sensor[i].Distances[j] < MIN_DIST) {
                 Total += Sensor[i].Distances[j];
                 Num += 1;
             }
         }
         if (Num > 3) {
-            Sensor[i].MeanDistances = Total / Num;
+            Sensor[i].MeanDistance = Total / Num;
         } else {
-            Sensor[i].MeanDistances = 0;
+            Sensor[i].MeanDistance = 0;
         }
     }
     
-#ifdef DEBUG
-    Serial.print("\n\rDistancias: ");
-    Serial.print(Sensor[0].MeanDistances);
-    Serial.print(",");
-    Serial.print(Sensor[1].MeanDistances);
-    Serial.print(",");
-    Serial.print(Sensor[2].MeanDistances);
-    Serial.print(",");
-    Serial.print(Sensor[3].MeanDistances);
-    Serial.print(",");
-    Serial.print(Sensor[4].MeanDistances);
-    Serial.print("cm\n\r");
+#ifdef(DEBUG_SENSORS)
+    if (millis() - last_time > TIME_DELTA)
+    {
+        COM_PORT.print("\n\rDistancias: ");
+        COM_PORT.print("front = ");
+        COM_PORT.print(Sensor[0].MeanDistance);
+        COM_PORT.print(",  right = ");
+        COM_PORT.print(Sensor[1].MeanDistance);
+        COM_PORT.print(", back = ");
+        COM_PORT.print(Sensor[2].MeanDistance);
+        COM_PORT.print(", left = ");
+        COM_PORT.print(Sensor[3].MeanDistance);
+        COM_PORT.print(", bottom = ");
+        COM_PORT.print(Sensor[4].MeanDistance);
+        COM_PORT.print("cm\n\r");
+
+        last_time = millis();
+    }
 #endif
 }
 
@@ -178,7 +211,7 @@ void MeanDistances() {
 void CheckDistances() {
     // Minimum of 10 for distance. There are measurement errors
     for (uint8_t i = 0; i < NSensors; i++) {
-        if (Sensor[i].MeanDistances != 0 && Sensor[i].MeanDistances < DistanceNext) {
+        if (Sensor[i].MeanDistance != 0 && Sensor[i].MeanDistance < ControlDistanceMin) {
             Sensor[i].Close = true;
         } else {
             Sensor[i].Close = false;
@@ -187,42 +220,43 @@ void CheckDistances() {
 }
 
 //========================MOVEMENT=========================//
+// TODO: meaningless argument
 uint16_t CheckPitch(uint16_t Pitch) {
-    int16_t Difference = Sensor[0].MeanDistances - Sensor[2].MeanDistances;
-    if ( Sensor[4].MeanDistances > AltMin || Sensor[4].MeanDistances == 0 ) {
+    int16_t Difference = Sensor[0].MeanDistance - Sensor[2].MeanDistance;
+    if ( Sensor[4].MeanDistance > AltMin || Sensor[4].MeanDistance == 0 ) {
         if ( abs(Difference) > DistMin ) {
             // Difference greater than 30 between both sensors
             if ( Sensor[0].Close == true ) {
                 // Detects the front
                 if ( Sensor[2].Close == true ) {
                     // Detects the butt
-                    if ( Sensor[0].MeanDistances < Sensor[2].MeanDistances ) {
+                    if ( Sensor[0].MeanDistance < Sensor[2].MeanDistance ) {
                         // The front sensor has a shorter distance
-                        return( Pitch = ValueRC( Sensor[0].MeanDistances, 1 ) );
+                        return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
                     } else {
                         // The rear sensor has a shorter distance
-                        return( Pitch = ValueRC( Sensor[2].MeanDistances, 0 ) );
+                        return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
                     }
                 } else {
                     // Detects front, but not rear
-                    return( Pitch = ValueRC( Sensor[0].MeanDistances, 1 ) );
+                    return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
                 }
             } else {
                 // Does not detect the front
                 if ( Sensor[2].Close == true ) {
                     // Detects the butt
-                    return( Pitch = ValueRC( Sensor[2].MeanDistances, 0 ) );
+                    return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
                 } else {
                     // Both have a distance greater than 150
                     return( Pitch = 0 );
                 }
             }
-        } else if ( Sensor[0].Close == true && Sensor[2].MeanDistances == 0 ) {
+        } else if ( Sensor[0].Close == true && Sensor[2].MeanDistance == 0 ) {
             // Detect the forward, and the back to detect nothing, returns 0
-            return( Pitch = ValueRC( Sensor[0].MeanDistances, 1 ) );
-        } else if ( Sensor[0].MeanDistances == 0 && Sensor[2].Close == true ) {
+            return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
+        } else if ( Sensor[0].MeanDistance == 0 && Sensor[2].Close == true ) {
             // The same but the opposite
-            return( Pitch = ValueRC( Sensor[2].MeanDistances, 0 ) );
+            return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
         } else {
             // Does not detect any. Both at 0
             return( Pitch = 0 );
@@ -232,42 +266,43 @@ uint16_t CheckPitch(uint16_t Pitch) {
     }
 }
 
+// TODO: meaningless argument
 uint16_t CheckRoll(uint16_t Roll) {
-    int16_t Difference = Sensor[1].MeanDistances - Sensor[3].MeanDistances;
-    if ( Sensor[4].MeanDistances > AltMin || Sensor[4].MeanDistances == 0 ) {
+    int16_t Difference = Sensor[1].MeanDistance - Sensor[3].MeanDistance;
+    if ( Sensor[4].MeanDistance > AltMin || Sensor[4].MeanDistance == 0 ) {
         if ( abs(Difference) > DistMin ) {
             // Difference greater than 20 between distances
             if ( Sensor[1].Close == true ) {
                 // Detects the right
                 if ( Sensor[3].Close == true ) {
                     // Detects left
-                    if ( Sensor[1].MeanDistances < Sensor[3].MeanDistances ) {
+                    if ( Sensor[1].MeanDistance < Sensor[3].MeanDistance ) {
                         // The right sensor has a smaller distance
-                        return( Roll = ValueRC( Sensor[1].MeanDistances, 0 ) );
+                        return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
                     } else {
                         // The left sensor has a smaller distance
-                        return( Roll = ValueRC( Sensor[3].MeanDistances, 1 ) );
+                        return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
                     }
                 } else {
                     // Detects right, but not left
-                    return( Roll = ValueRC( Sensor[1].MeanDistances, 0 ) );
+                    return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
                 }
             } else {
                 //No detecta el derecho
                 if ( Sensor[3].Close == true ) {
                     // Detects left
-                    return( Roll = ValueRC( Sensor[3].MeanDistances, 1 ) );
+                    return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
                 } else {
                     // Both have a distance greater than 150
                     return( Roll = 0 );
                 }
             }
-        } else if ( Sensor[1].Close == true && Sensor[3].MeanDistances == 0 ) {
+        } else if ( Sensor[1].Close == true && Sensor[3].MeanDistance == 0 ) {
             // Detects the right, and the left when it does not detect anything, returns 0
-            return( Roll = ValueRC( Sensor[1].MeanDistances, 0 ) );
-        } else if ( Sensor[1].MeanDistances == 0 && Sensor[3].Close == true ) {
+            return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
+        } else if ( Sensor[1].MeanDistance == 0 && Sensor[3].Close == true ) {
             // The same but the opposite
-            return( Roll = ValueRC( Sensor[3].MeanDistances, 1 ) );
+            return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
         } else {
             // Does not detect any. Both at 0
             return( Roll = 0 );
@@ -377,10 +412,10 @@ void FHeartBeat() {
     len = mavlink_msg_to_send_buffer(buf, &msg);
 
     // Send the message (.write sends as bytes)
-    Serial.write(buf, len);
+    APM_PORT.write(buf, len);
 
 #ifdef DEBUG
-    Serial.write("\n\rHeartBeat\n\r");
+    COM_PORT.write("\n\rHeartBeat\n\r");
 #endif
 }
 
@@ -402,18 +437,32 @@ void RCOverride(mavlink_message_t *msg, uint8_t *buf, uint16_t PitchOut, uint16_
         SYSTEM_ID, COMPONENT_ID, msg, TARGET_SYSTEM, TARGET_COMPONENT, 
         RollOut, PitchOut, CHAN3_RAW, CHAN4_RAW, CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
     uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
-    Serial.write(buf, len);
-    
+    APM_PORT.write(buf, len);
+
 #ifdef DEBUG
-    Serial.print("\n\rPitch: ");
-    Serial.print(PitchOut);
-    Serial.print(",");
-    Serial.print(" Roll: ");
-    Serial.print(RollOut);
+        if (state)
+        {
+          digitalWrite(led, LOW);
+          state = false;
+        }
+        else
+        {
+          digitalWrite(led, HIGH);
+          state = true;
+        }
+#endif    
+
+#ifdef DEBUG_0
+    COM_PORT.print("\n\rPitch: ");
+    COM_PORT.print(PitchOut);
+    COM_PORT.print(",");
+    COM_PORT.print(" Roll: ");
+    COM_PORT.print(RollOut);
 #endif
 }
 
-/*//Arm the Dron
+/*
+  //Arm the Dron
   //Pack the message
   //uint16_t mavlink_msg_command_long_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,uint8_t target_system, uint8_t target_component, uint16_t command, uint8_t confirmation, float param1, float param2, float param3, float param4, float param5, float param6, float param7)
   mavlink_msg_command_long_pack(255, 0, &msg, 1, 0, MAV_CMD_COMPONENT_ARM_DISARM, 0, 1, 0, 0, 0, 0, 0, 0);
