@@ -2,6 +2,15 @@
 #include "variables.h"
 #include "SerialCommunication.h"
 
+
+
+#ifdef DEBUG_SENSORS
+unsigned long last_time = 0;
+#define TIME_DELTA 400
+#endif
+
+#define ControlDistanceMin 150 // Distance from which control begins to act // TODO: changed from 100
+
 /* Initialization of the sensor pins. Library "NewPing"
    NewPing NAME (Trigger, Echo, MAXDIST);
    The value of MAXDIST is the maximum distance the library measures.
@@ -16,12 +25,7 @@ NewPing sonar2(24, 25, MIN_DIST);
 NewPing sonar3(27, 28, MIN_DIST);
 NewPing sonar4(46, 47, MIN_HEIGHT);
 
-#ifdef DEBUG_SENSORS
-unsigned long last_time = 0;
-#define TIME_DELTA 400
-#endif
 
-#define ControlDistanceMin 150 // Distance from which control begins to act // TODO: changed from 100
 
 #ifdef OLD_COMPILER
 Sensors::Sensors() 
@@ -33,6 +37,8 @@ Sensors::Sensors()
 }
 #endif
 
+
+
 // The sensors are measured, and placed in position 0 of each array
 void MeasureSensors() {
     Sensor[0].Distances[0] = sonar0.ping_cm();
@@ -41,6 +47,8 @@ void MeasureSensors() {
     Sensor[3].Distances[0] = sonar3.ping_cm();
     Sensor[4].Distances[0] = sonar4.ping_cm();
 }
+
+
 
 // The average of all distances is performed. The 0 are discarded
 void MeanDistances() {
@@ -83,6 +91,8 @@ void MeanDistances() {
     }
 #endif
 }
+
+
 
 // Check if the mean obtained is below the threshold.
 void CheckDistances() {
