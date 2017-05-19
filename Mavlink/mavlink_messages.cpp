@@ -32,6 +32,11 @@ void HeartBeat() {
 
 
 
+/*Channel 1 = Roll
+  Channel 2 = Pitch
+  Channel 3 = Throttle
+  Channel 4 = Yaw*/
+
 #define TARGET_SYSTEM    1
 #define TARGET_COMPONENT 0
 #define CHAN3_RAW        0
@@ -64,3 +69,20 @@ void RCOverride(uint16_t PitchOut, uint16_t RollOut) {
     COM_PORT.print(RollOut);
 #endif
 }
+
+
+/*
+  //Arm the Dron
+  //Pack the message
+  //uint16_t mavlink_msg_command_long_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,uint8_t target_system, uint8_t target_component, uint16_t command, uint8_t confirmation, float param1, float param2, float param3, float param4, float param5, float param6, float param7)
+  mavlink_msg_command_long_pack(255, 0, &msg, 1, 0, MAV_CMD_COMPONENT_ARM_DISARM, 0, 1, 0, 0, 0, 0, 0, 0);
+
+  len = mavlink_msg_to_send_buffer(buf, &msg);
+
+  // Send the message (.write sends as bytes)
+  Serial.write(buf, len);
+  delay(1000);*/
+
+/*mavlink_msg_rc_channels_override_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
+uint8_t target_system, uint8_t target_component, uint16_t chan1_raw, uint16_t chan2_raw, uint16_t chan3_raw,
+uint16_t chan4_raw, uint16_t chan5_raw, uint16_t chan6_raw, uint16_t chan7_raw, uint16_t chan8_raw)*/
