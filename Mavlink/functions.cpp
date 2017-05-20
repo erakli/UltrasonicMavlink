@@ -4,13 +4,6 @@
 #include "movement.h"
 #include "mavlink_messages.h"
 
-// Variable used to control the HeartBeat sent every second
-unsigned long HeartbeatTime = 0;
-
-uint16_t PitchOutTemp = 0;
-uint16_t RollOutTemp  = 0;
-uint8_t n = 0;
-
 
 
 // Task to measure the sensors
@@ -23,6 +16,9 @@ void FSensors() {
 
 
 
+// Variable used to control the HeartBeat sent every second
+unsigned long HeartbeatTime = 0;
+
 // Task responsible for sending a HeartBeat every second
 void FHeartBeat() {
     if ( (millis() - HeartbeatTime) > 1000 ) {
@@ -32,6 +28,10 @@ void FHeartBeat() {
 }
 
 
+
+uint16_t PitchOutTemp = 0;
+uint16_t RollOutTemp  = 0;
+uint8_t n = 0;
 
 // Task that sends the motion commands according to the distances detected by the sensors
 void FRCOverride() {

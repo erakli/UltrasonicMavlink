@@ -25,7 +25,7 @@ void HeartBeat() {
     // Send the message (.write sends as bytes)
     APM_PORT.write(buf, len);
 
-#ifdef DEBUG_MAVLINK
+#if defined(DEBUG_MAVLINK) && defined(DEBUG_HEARTBEAT)
     COM_PORT.write("\n\rHeartBeat\n\r");
 #endif
 }
@@ -62,7 +62,10 @@ void RCOverride(uint16_t PitchOut, uint16_t RollOut) {
     LED_change_state();
 
 #ifdef DEBUG_MAVLINK
-    COM_PORT.print("\n\rPitch: ");
+    COM_PORT.print("\n\r");
+    COM_PORT.print("time: ");
+    COM_PORT.print(millis());
+    COM_PORT.print(", Pitch: ");
     COM_PORT.print(PitchOut);
     COM_PORT.print(",");
     COM_PORT.print(" Roll: ");

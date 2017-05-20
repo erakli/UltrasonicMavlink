@@ -6,10 +6,10 @@
 
 #ifdef DEBUG_SENSORS
 unsigned long last_time = 0;
-#define TIME_DELTA 400
+#define TIME_DELTA 2000
 #endif
 
-#define ControlDistanceMin 150 // Distance from which control begins to act // TODO: changed from 100
+#define ControlDistanceMin 100 // Distance from which control begins to act // TODO: changed from 100
 
 /* Initialization of the sensor pins. Library "NewPing"
    NewPing NAME (Trigger, Echo, MAXDIST);
@@ -17,7 +17,7 @@ unsigned long last_time = 0;
    If any Echo returns a value greater than said distance, it is automatically discarded*/
 
 #define MIN_DIST 300
-#define MIN_HEIGHT 10      // TODO: changed from 100
+#define MIN_HEIGHT 100      // TODO: changed from 100
 
 NewPing sonar0(4, 5, MIN_DIST);
 NewPing sonar1(8, 9, MIN_DIST);
@@ -74,18 +74,78 @@ void MeanDistances() {
 #ifdef DEBUG_SENSORS
     if (millis() - last_time > TIME_DELTA)
     {
-        COM_PORT.print("\n\rDistancias: ");
+        COM_PORT.print("\n\rDistancias:\n\r");
+
+        int i = 0;
         COM_PORT.print("front = ");
-        COM_PORT.print(Sensor[0].MeanDistance);
-        COM_PORT.print(",  right = ");
-        COM_PORT.print(Sensor[1].MeanDistance);
-        COM_PORT.print(", back = ");
-        COM_PORT.print(Sensor[2].MeanDistance);
-        COM_PORT.print(", left = ");
-        COM_PORT.print(Sensor[3].MeanDistance);
-        COM_PORT.print(", bottom = ");
-        COM_PORT.print(Sensor[4].MeanDistance);
-        COM_PORT.print("cm\n\r");
+        COM_PORT.print(Sensor[i].MeanDistance);
+        COM_PORT.print(" (");
+        COM_PORT.print(Sensor[i].Close);
+        COM_PORT.print("), ");
+        // COM_PORT.print(" ), raw = ");
+        // COM_PORT.print(Sensor[i].Distances[0]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[1]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[2]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[3]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[4]); COM_PORT.print(", ");
+        // COM_PORT.print("\n\r");
+
+        i = 1;
+        COM_PORT.print("right = ");
+        COM_PORT.print(Sensor[i].MeanDistance);
+        COM_PORT.print(" (");
+        COM_PORT.print(Sensor[i].Close);
+        COM_PORT.print("), ");
+        // COM_PORT.print(" ), raw = ");
+        // COM_PORT.print(Sensor[i].Distances[0]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[1]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[2]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[3]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[4]); COM_PORT.print(", ");
+        // COM_PORT.print("\n\r");
+
+        i = 2;
+        COM_PORT.print("back = ");
+        COM_PORT.print(Sensor[i].MeanDistance);
+        COM_PORT.print(" (");
+        COM_PORT.print(Sensor[i].Close);
+        COM_PORT.print("), ");
+        // COM_PORT.print(" ), raw = ");
+        // COM_PORT.print(Sensor[i].Distances[0]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[1]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[2]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[3]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[4]); COM_PORT.print(", ");
+        // COM_PORT.print("\n\r");
+
+        i = 3;
+        COM_PORT.print("left = ");
+        COM_PORT.print(Sensor[i].MeanDistance);
+        COM_PORT.print(" (");
+        COM_PORT.print(Sensor[i].Close);
+        COM_PORT.print("), ");
+        // COM_PORT.print(" ), raw = ");
+        // COM_PORT.print(Sensor[i].Distances[0]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[1]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[2]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[3]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[4]); COM_PORT.print(", ");
+        // COM_PORT.print("\n\r");
+
+        i = 4;
+        COM_PORT.print("bottom = ");
+        COM_PORT.print(Sensor[i].MeanDistance);
+        COM_PORT.print(" (");
+        COM_PORT.print(Sensor[i].Close);
+        COM_PORT.print("), ");
+        // COM_PORT.print(Sensor[i].Distances[0]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[1]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[2]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[3]); COM_PORT.print(", ");
+        // COM_PORT.print(Sensor[i].Distances[4]); COM_PORT.print(", ");
+        // COM_PORT.print("\n\r");
+
+        COM_PORT.print("\n\r");
 
         last_time = millis();
     }
