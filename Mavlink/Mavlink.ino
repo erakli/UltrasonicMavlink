@@ -4,7 +4,7 @@
 
 // includes of Arduino's libraries. This is for other files
 #include <NewPing.h>
-#include "mavlink/common/mavlink.h" // Mavlink interface 
+#include "mavlink/ardupilotmega/mavlink.h" // Mavlink interface 
 #include "mavlink/mavlink_types.h"
 
 #define BAUDRATE 57600
