@@ -1,7 +1,7 @@
 #include "mavlink_messages.h"
 
-#include <ardupilotmega/mavlink.h> // Mavlink interface 
-#include <mavlink_types.h>
+#include "mavlink/common/mavlink.h" // Mavlink interface 
+#include "mavlink/mavlink_types.h"
 
 #include "LED.h"
 #include "SerialCommunication.h"
