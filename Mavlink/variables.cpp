@@ -9,4 +9,4 @@ uint16_t RollOut      = 0;
 
 
 // The variables of each sensor are created
-Sensors Sensor[NSensors];
+Sensor sensors[NSensors];

@@ -13,19 +13,17 @@
 
 void HeartBeat() {
     mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    uint16_t len;
-    
     mavlink_msg_heartbeat_pack(SYSTEM_ID, COMPONENT_ID, &msg, 
         MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_GENERIC, 0, 1, 0);
 
     // Copy the message to send buffer
-    len = mavlink_msg_to_send_buffer(buf, &msg);
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
 
     // Send the message (.write sends as bytes)
     APM_PORT.write(buf, len);
 
-#if defined(DEBUG_MAVLINK) && defined(DEBUG_HEARTBEAT)
+#ifdef DEBUG_HEARTBEAT
     COM_PORT.write("\n\rHeartBeat\n\r");
 #endif
 }
@@ -47,15 +45,14 @@ void HeartBeat() {
 #define CHAN8_RAW        0
 
 void RCOverride(uint16_t PitchOut, uint16_t RollOut) {
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    uint16_t len;
-
     // Package and send calculated Pitch and Roll data. Only send if the data is new
+    mavlink_message_t msg;
     mavlink_msg_rc_channels_override_pack(
         SYSTEM_ID, COMPONENT_ID, &msg, TARGET_SYSTEM, TARGET_COMPONENT, 
         RollOut, PitchOut, CHAN3_RAW, CHAN4_RAW, CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
-    len = mavlink_msg_to_send_buffer(buf, &msg);
+
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
     
     APM_PORT.write(buf, len);
 

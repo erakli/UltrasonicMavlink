@@ -1,6 +1,6 @@
 #include "functions.h"
 #include "variables.h"
-#include "sensors.h"
+#include "sensor.h"
 #include "movement.h"
 #include "mavlink_messages.h"
 
@@ -8,9 +8,8 @@
 
 // Task to measure the sensors
 void FSensors() {
-    ShiftArrays();
     MeasureSensors();
-    MeanDistances();
+    EvalMeanDistances();
     CheckDistances();
 }
 
@@ -36,13 +35,14 @@ uint8_t n = 0;
 // Task that sends the motion commands according to the distances detected by the sensors
 void FRCOverride() {
     // TODO: temp assignment
-    Pitch = 0;
-    Roll = 0;
+    // Pitch = 0;
+    // Roll = 0;
     Pitch  = CheckPitch(Pitch);
     Roll   = CheckRoll(Roll);     // TODO: temp commented
 
     CompensationInertia();
- 
+
+    // TODO: describe this moment    
     if ( Pitch != PitchOutTemp || Roll != RollOutTemp ) {
         n = 0;
         PitchOutTemp = Pitch;
@@ -57,13 +57,3 @@ void FRCOverride() {
     }
 }
 
-
-
-// Shift each array of Distances on one position to the right
-void ShiftArrays() {
-    for (uint8_t i = 0; i < NSensors; i++) {
-        for (uint8_t j = NDistances - 1; j > 0; j--) {
-            Sensor[i].Distances[j] = Sensor[i].Distances[j - 1];
-        }
-    }
-}

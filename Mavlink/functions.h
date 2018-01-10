@@ -10,7 +10,4 @@ void FHeartBeat();
 // Task that sends the motion commands according to the distances detected by the sensors
 void FRCOverride();
 
-// Shift each array of Distances on one position to the right
-void ShiftArrays();
-
 #endif

@@ -2,7 +2,7 @@
 #define VARIABLES_H
 
 #include <Arduino.h>  // uint16_t
-#include "sensors.h"
+#include "sensor.h"
 
 // Variables used to send only one RCOverride at a time
 // to be modified, and not to saturate the redundant order controller
@@ -13,6 +13,6 @@ extern uint16_t RollOut;
 
 // The variables of each sensor are created
 #define NSensors 5
-extern Sensors Sensor[];
+extern Sensor sensors[];
 
 #endif

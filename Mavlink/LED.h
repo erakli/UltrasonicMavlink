@@ -4,7 +4,6 @@
 // This file is needed for indicating of something during work
 
 void LED_init();
-
 void LED_change_state();
 
 #endif

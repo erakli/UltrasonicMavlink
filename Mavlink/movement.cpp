@@ -9,41 +9,41 @@
 
 // TODO: meaningless argument
 uint16_t CheckPitch(uint16_t Pitch) {
-    int16_t Difference = Sensor[0].MeanDistance - Sensor[2].MeanDistance;
-    if ( Sensor[4].MeanDistance > AltMin || Sensor[4].MeanDistance == 0 ) {
+    int16_t Difference = sensors[0].meanDistance - sensors[2].meanDistance;
+    if ( sensors[4].meanDistance > AltMin || sensors[4].meanDistance == 0 ) {
         if ( abs(Difference) > DistMin ) {
             // Difference greater than 30 between both sensors
-            if ( Sensor[0].Close == true ) {
+            if ( sensors[0].isClose == true ) {
                 // Detects the front
-                if ( Sensor[2].Close == true ) {
+                if ( sensors[2].isClose == true ) {
                     // Detects the butt
-                    if ( Sensor[0].MeanDistance < Sensor[2].MeanDistance ) {
+                    if ( sensors[0].meanDistance < sensors[2].meanDistance ) {
                         // The front sensor has a shorter distance
-                        return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
+                        return( Pitch = ValueRC( sensors[0].meanDistance, 1 ) );
                     } else {
                         // The rear sensor has a shorter distance
-                        return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
+                        return( Pitch = ValueRC( sensors[2].meanDistance, 0 ) );
                     }
                 } else {
                     // Detects front, but not rear
-                    return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
+                    return( Pitch = ValueRC( sensors[0].meanDistance, 1 ) );
                 }
             } else {
                 // Does not detect the front
-                if ( Sensor[2].Close == true ) {
+                if ( sensors[2].isClose == true ) {
                     // Detects the butt
-                    return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
+                    return( Pitch = ValueRC( sensors[2].meanDistance, 0 ) );
                 } else {
                     // Both have a distance greater than 150
                     return( Pitch = 0 );
                 }
             }
-        } else if ( Sensor[0].Close == true && Sensor[2].MeanDistance == 0 ) {
+        } else if ( sensors[0].isClose == true && sensors[2].meanDistance == 0 ) {
             // Detect the forward, and the back to detect nothing, returns 0
-            return( Pitch = ValueRC( Sensor[0].MeanDistance, 1 ) );
-        } else if ( Sensor[0].MeanDistance == 0 && Sensor[2].Close == true ) {
+            return( Pitch = ValueRC( sensors[0].meanDistance, 1 ) );
+        } else if ( sensors[0].meanDistance == 0 && sensors[2].isClose == true ) {
             // The same but the opposite
-            return( Pitch = ValueRC( Sensor[2].MeanDistance, 0 ) );
+            return( Pitch = ValueRC( sensors[2].meanDistance, 0 ) );
         } else {
             // Does not detect any. Both at 0
             return( Pitch = 0 );
@@ -57,41 +57,41 @@ uint16_t CheckPitch(uint16_t Pitch) {
 
 // TODO: meaningless argument
 uint16_t CheckRoll(uint16_t Roll) {
-    int16_t Difference = Sensor[1].MeanDistance - Sensor[3].MeanDistance;
-    if ( Sensor[4].MeanDistance > AltMin || Sensor[4].MeanDistance == 0 ) {
+    int16_t Difference = sensors[1].meanDistance - sensors[3].meanDistance;
+    if ( sensors[4].meanDistance > AltMin || sensors[4].meanDistance == 0 ) {
         if ( abs(Difference) > DistMin ) {
             // Difference greater than 20 between distances
-            if ( Sensor[1].Close == true ) {
+            if ( sensors[1].isClose == true ) {
                 // Detects the right
-                if ( Sensor[3].Close == true ) {
+                if ( sensors[3].isClose == true ) {
                     // Detects left
-                    if ( Sensor[1].MeanDistance < Sensor[3].MeanDistance ) {
+                    if ( sensors[1].meanDistance < sensors[3].meanDistance ) {
                         // The right sensor has a smaller distance
-                        return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
+                        return( Roll = ValueRC( sensors[1].meanDistance, 0 ) );
                     } else {
                         // The left sensor has a smaller distance
-                        return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
+                        return( Roll = ValueRC( sensors[3].meanDistance, 1 ) );
                     }
                 } else {
                     // Detects right, but not left
-                    return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
+                    return( Roll = ValueRC( sensors[1].meanDistance, 0 ) );
                 }
             } else {
                 //No detecta el derecho
-                if ( Sensor[3].Close == true ) {
+                if ( sensors[3].isClose == true ) {
                     // Detects left
-                    return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
+                    return( Roll = ValueRC( sensors[3].meanDistance, 1 ) );
                 } else {
                     // Both have a distance greater than 150
                     return( Roll = 0 );
                 }
             }
-        } else if ( Sensor[1].Close == true && Sensor[3].MeanDistance == 0 ) {
+        } else if ( sensors[1].isClose == true && sensors[3].meanDistance == 0 ) {
             // Detects the right, and the left when it does not detect anything, returns 0
-            return( Roll = ValueRC( Sensor[1].MeanDistance, 0 ) );
-        } else if ( Sensor[1].MeanDistance == 0 && Sensor[3].Close == true ) {
+            return( Roll = ValueRC( sensors[1].meanDistance, 0 ) );
+        } else if ( sensors[1].meanDistance == 0 && sensors[3].isClose == true ) {
             // The same but the opposite
-            return( Roll = ValueRC( Sensor[3].MeanDistance, 1 ) );
+            return( Roll = ValueRC( sensors[3].meanDistance, 1 ) );
         } else {
             // Does not detect any. Both at 0
             return( Roll = 0 );
@@ -132,28 +132,28 @@ uint16_t ValueRC( uint16_t Distance, bool Increase ) {
 
 void CompensationInertia() {
 
-    if (PitchOut > 1500 && Sensor[0].Active == false && Sensor[2].Active == false) {
-        Sensor[0].Active = true;
-    } else if (PitchOut < 1500 && PitchOut != 0 && Sensor[2].Active == false && Sensor[0].Active == false) {
-        Sensor[2].Active = true;
-    } else if (PitchOut == 0 && Sensor[0].Active == true && Sensor[0].CompensateTime == 0) {
-        Sensor[0].CompensateTime = millis();
-    } else if (PitchOut == 0 && Sensor[2].Active == true && Sensor[2].CompensateTime == 0) {
-        Sensor[2].CompensateTime = millis();
+    if (PitchOut > 1500 && sensors[0].isActive == false && sensors[2].isActive == false) {
+        sensors[0].isActive = true;
+    } else if (PitchOut < 1500 && PitchOut != 0 && sensors[2].isActive == false && sensors[0].isActive == false) {
+        sensors[2].isActive = true;
+    } else if (PitchOut == 0 && sensors[0].isActive == true && sensors[0].compensateTime == 0) {
+        sensors[0].compensateTime = millis();
+    } else if (PitchOut == 0 && sensors[2].isActive == true && sensors[2].compensateTime == 0) {
+        sensors[2].compensateTime = millis();
     }
 
-    if (RollOut > 1500 && Sensor[3].Active == false && Sensor[1].Active == false) {
-        Sensor[3].Active = true;
-    } else if (RollOut < 1500 && RollOut != 0 && Sensor[1].Active == false && Sensor[3].Active == false) {
-        Sensor[1].Active = true;
-    } else if (RollOut == 0 && Sensor[1].Active == true && Sensor[1].CompensateTime == 0) {
-        Sensor[1].CompensateTime = millis();
-    } else if (RollOut == 0 && Sensor[3].Active == true && Sensor[3].CompensateTime == 0) {
-        Sensor[3].CompensateTime = millis();
+    if (RollOut > 1500 && sensors[3].isActive == false && sensors[1].isActive == false) {
+        sensors[3].isActive = true;
+    } else if (RollOut < 1500 && RollOut != 0 && sensors[1].isActive == false && sensors[3].isActive == false) {
+        sensors[1].isActive = true;
+    } else if (RollOut == 0 && sensors[1].isActive == true && sensors[1].compensateTime == 0) {
+        sensors[1].compensateTime = millis();
+    } else if (RollOut == 0 && sensors[3].isActive == true && sensors[3].compensateTime == 0) {
+        sensors[3].compensateTime = millis();
     }
 
     for (int i = 0; i < 4; i++) {
-        if (Sensor[i].CompensateTime != 0 && (Sensor[i].CompensateTime + Compensation > millis())) {
+        if (sensors[i].compensateTime != 0 && (sensors[i].compensateTime + Compensation > millis())) {
             switch (i) {
             case 0:
                 Pitch = 1300;
@@ -170,19 +170,19 @@ void CompensationInertia() {
             default:
                 break;
             }
-        } else if (Sensor[i].CompensateTime != 0) {
+        } else if (sensors[i].compensateTime != 0) {
             switch (i) {
             case 0:
             case 2:
                 PitchOut = 0;
-                Sensor[i].Active = false;
-                Sensor[i].CompensateTime = 0;
+                sensors[i].isActive = false;
+                sensors[i].compensateTime = 0;
                 break;
             case 1:
             case 3:
                 RollOut = 0;
-                Sensor[i].Active = false;
-                Sensor[i].CompensateTime = 0;
+                sensors[i].isActive = false;
+                sensors[i].compensateTime = 0;
                 break;
             default:
                 break;
