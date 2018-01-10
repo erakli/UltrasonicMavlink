@@ -1,8 +1,10 @@
 #include "mavlink_messages.h"
 
+#include <stdint.h> // uint16_t, etc
 #include "mavlink/ardupilotmega/mavlink.h" // Mavlink interface 
-#include "mavlink/mavlink_types.h"
 
+#include "defines.h"
+#include "variables.h"
 #include "LED.h"
 #include "SerialCommunication.h"
 
@@ -44,12 +46,14 @@ void HeartBeat() {
 #define CHAN7_RAW        0
 #define CHAN8_RAW        0
 
-void RCOverride(uint16_t PitchOut, uint16_t RollOut) {
+
+void RCOverride() {
     // Package and send calculated Pitch and Roll data. Only send if the data is new
     mavlink_message_t msg;
     mavlink_msg_rc_channels_override_pack(
         SYSTEM_ID, COMPONENT_ID, &msg, TARGET_SYSTEM, TARGET_COMPONENT, 
-        RollOut, PitchOut, CHAN3_RAW, CHAN4_RAW, CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
+        rollOut, pitchOut, CHAN3_RAW, CHAN4_RAW, 
+        CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
@@ -57,18 +61,19 @@ void RCOverride(uint16_t PitchOut, uint16_t RollOut) {
     APM_PORT.write(buf, len);
 
     LED_change_state();
-
+    
 #ifdef DEBUG_MAVLINK
     COM_PORT.print("\n\r");
     COM_PORT.print("time: ");
     COM_PORT.print(millis());
     COM_PORT.print(", Pitch: ");
-    COM_PORT.print(PitchOut);
+    COM_PORT.print(pitchOut);
     COM_PORT.print(",");
     COM_PORT.print(" Roll: ");
-    COM_PORT.print(RollOut);
+    COM_PORT.print(rollOut);
 #endif
 }
+
 
 
 /*

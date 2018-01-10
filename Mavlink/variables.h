@@ -1,18 +1,17 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-#include <Arduino.h>  // uint16_t
+#include <stdint.h> // uint16_t, etc
 #include "sensor.h"
 
 // Variables used to send only one RCOverride at a time
 // to be modified, and not to saturate the redundant order controller
-extern uint16_t Pitch;
-extern uint16_t Roll;
-extern uint16_t PitchOut;
-extern uint16_t RollOut;
+extern uint16_t pitch;
+extern uint16_t roll;
+extern uint16_t pitchOut;
+extern uint16_t rollOut;
 
 // The variables of each sensor are created
-#define NSensors 5
-extern Sensor sensors[];
+extern Sensors sensors;
 
 #endif

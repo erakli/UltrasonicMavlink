@@ -1,58 +1,48 @@
 #include "functions.h"
+
+#include <Arduino.h>    // millis()
 #include "variables.h"
-#include "sensor.h"
 #include "movement.h"
 #include "mavlink_messages.h"
 
 
 
-// Task to measure the sensors
-void FSensors() {
-    MeasureSensors();
-    EvalMeanDistances();
-    CheckDistances();
-}
-
-
-
-// Variable used to control the HeartBeat sent every second
-unsigned long HeartbeatTime = 0;
-
 // Task responsible for sending a HeartBeat every second
 void FHeartBeat() {
-    if ( (millis() - HeartbeatTime) > 1000 ) {
-        HeartbeatTime = millis();
+    // Variable used to control the HeartBeat sent every second
+    static unsigned long heartbeatTime = 0;
+
+    if ( (millis() - heartbeatTime) > 1000 ) {
+        heartbeatTime = millis();
         HeartBeat();
     }
 }
 
 
 
-uint16_t PitchOutTemp = 0;
-uint16_t RollOutTemp  = 0;
-uint8_t n = 0;
-
-// Task that sends the motion commands according to the distances detected by the sensors
+// Task that sends the motion commands according to the distances detected 
+// by the sensors
 void FRCOverride() {
-    // TODO: temp assignment
-    // Pitch = 0;
-    // Roll = 0;
-    Pitch  = CheckPitch(Pitch);
-    Roll   = CheckRoll(Roll);     // TODO: temp commented
+    pitch  = CheckPitch();
+    roll   = CheckRoll();
 
     CompensationInertia();
 
+    static uint16_t pitchOutTemp = 0;
+    static uint16_t rollOutTemp  = 0;
+    static uint8_t n = 0;
+
     // TODO: describe this moment    
-    if ( Pitch != PitchOutTemp || Roll != RollOutTemp ) {
+    if ( pitch != pitchOutTemp || roll != rollOutTemp ) {
         n = 0;
-        PitchOutTemp = Pitch;
-        RollOutTemp  = Roll;
+        pitchOutTemp = pitch;
+        rollOutTemp  = roll;
     } else {
         n += 1;
         if (n == 4) {
-            RollOut = RollOutTemp;
-            PitchOut = PitchOutTemp;
-            RCOverride(PitchOut, RollOut);
+            rollOut = rollOutTemp;
+            pitchOut = pitchOutTemp;
+            RCOverride();
         }
     }
 }

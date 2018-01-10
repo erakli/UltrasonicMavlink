@@ -1,6 +1,7 @@
-#include "SerialCommunication.h"
-#include "LED.h"
+#include "SerialCommunication.h"    // OpenPorts()
+#include "LED.h"                    // LED_init()
 #include "functions.h"
+#include "variables.h"              // Sensors
 
 // includes of Arduino's libraries. This is for other files
 #include <NewPing.h>
@@ -10,12 +11,12 @@
 #define BAUDRATE 57600
 
 void setup() {
-    openPorts(BAUDRATE);
+    OpenPorts(BAUDRATE);
     LED_init();
 }
 
 void loop() {
     FHeartBeat();
-    FSensors();
+    sensors.MakeMeasureCycle();
     FRCOverride(); // TODO: commented
 }

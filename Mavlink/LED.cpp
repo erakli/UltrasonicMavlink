@@ -1,7 +1,6 @@
 #include "LED.h"
 
 #include <Arduino.h> // OUTPUT and other stuff
-
 #include "defines.h"
 
 #ifdef LED_INDICATION

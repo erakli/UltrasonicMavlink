@@ -13,7 +13,7 @@
                 "${ARDUINO_LIB}/mavlink"
             ],
             "defines": [
-                "ARDUINO=185"
+                "ARDUINO=${ARDUINO_VER}"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": false,
