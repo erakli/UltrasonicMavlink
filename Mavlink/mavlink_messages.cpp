@@ -4,14 +4,11 @@
 #include "mavlink/ardupilotmega/mavlink.h" // Mavlink interface 
 
 #include "defines.h"
+#include "constants.h"
 #include "variables.h"
 #include "LED.h"
 #include "SerialCommunication.h"
 
-
-
-#define SYSTEM_ID        255 // System ID = 255 = GCS
-#define COMPONENT_ID     0
 
 void HeartBeat() {
     mavlink_message_t msg;
@@ -36,16 +33,6 @@ void HeartBeat() {
   Channel 2 = Pitch
   Channel 3 = Throttle
   Channel 4 = Yaw*/
-
-#define TARGET_SYSTEM    1
-#define TARGET_COMPONENT 0
-#define CHAN3_RAW        0
-#define CHAN4_RAW        0
-#define CHAN5_RAW        0
-#define CHAN6_RAW        0
-#define CHAN7_RAW        0
-#define CHAN8_RAW        0
-
 
 void RCOverride() {
     // Package and send calculated Pitch and Roll data. Only send if the data is new

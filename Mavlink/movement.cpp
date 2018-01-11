@@ -1,133 +1,116 @@
 #include "movement.h"
 
 #include <Arduino.h>    // millis()
+#include "defines.h"
+#include "constants.h"
 #include "variables.h"
 
-#define ALT_MIN             70  // Height at which control begins
-#define DIST_MIN            50  // Minimum difference between two distances of the same axis to move.
-#define COMPENSATION_TIME   800 // Time of inertia compensation in ms
+#ifdef DEBUG_MOVEMENT
+#include "SerialCommunication.h"
+#endif
 
 
-uint16_t CheckPitch() {
-    if ( sensors[4].meanDistance > ALT_MIN || sensors[4].meanDistance == 0 ) {
-        int16_t difference = sensors[0].meanDistance - sensors[2].meanDistance;
-        if ( abs(difference) > DIST_MIN ) {
-            // difference greater than 30 between both sensors
-            if ( sensors[0].isClose ) {
-                // Detects the front
-                if ( sensors[2].isClose ) {
-                    // Detects the butt
-                    if ( sensors[0].meanDistance < sensors[2].meanDistance ) {
-                        // The front sensor has a shorter distance
-                        return ValueRC( sensors[0].meanDistance, true );
-                    } else {
-                        // The rear sensor has a shorter distance
-                        return ValueRC( sensors[2].meanDistance, false );
-                    }
-                } else {
-                    // Detects front, but not rear
-                    return ValueRC( sensors[0].meanDistance, true );
-                }
-            } else {
-                // Does not detect the front
-                if ( sensors[2].isClose ) {
-                    // Detects the butt
-                    return ValueRC( sensors[2].meanDistance, false );
-                } else {
-                    // Both have a distance greater than 150
-                    return 0;
-                }
-            }
-        } else if ( sensors[0].isClose && sensors[2].meanDistance == 0 ) {
-            // Detect the forward, and the back to detect nothing, returns 0
-            return ValueRC( sensors[0].meanDistance, true );
-        } else if ( sensors[0].meanDistance == 0 && sensors[2].isClose ) {
-            // The same but the opposite
-            return ValueRC( sensors[2].meanDistance, false );
-        } else {
-            // Does not detect any. Both at 0
-            return 0;
-        }
-    } else {
+uint16_t CheckChannel(Channels channel) {
+    if ( CheckHeight() ) {
+#ifdef DEBUG_MOVEMENT
+        COM_PORT.println("low height");
+#endif
         return 0;
     }
+
+    Sensor sensorA;
+    Sensor sensorB;
+
+    Directions dirA;
+    Directions dirB;
+
+    switch (channel) {
+        case Channel_Pitch:
+            sensorA = sensors[0];
+            sensorB = sensors[2];
+            dirA = Direction_Front;
+            dirB = Direction_Back;
+        break;
+
+        case Channel_Roll:
+            sensorA = sensors[3];
+            sensorB = sensors[1];
+            dirA = Direction_Left;
+            dirB = Direction_Right;
+        break;
+    }
+
+    return GetRCValueForSensors(sensorA, sensorB, dirA, dirB);
 }
 
 
-uint16_t CheckRoll() {
-    if ( sensors[4].meanDistance > ALT_MIN || sensors[4].meanDistance == 0 ) {
-        int16_t difference = sensors[1].meanDistance - sensors[3].meanDistance;
-        if ( abs(difference) > DIST_MIN ) {
-            // difference greater than 20 between distances
-            if ( sensors[1].isClose ) {
-                // Detects the right
-                if ( sensors[3].isClose ) {
-                    // Detects left
-                    if ( sensors[1].meanDistance < sensors[3].meanDistance ) {
-                        // The right sensor has a smaller distance
-                        return ValueRC( sensors[1].meanDistance, false );
-                    } else {
-                        // The left sensor has a smaller distance
-                        return ValueRC( sensors[3].meanDistance, true );
-                    }
-                } else {
-                    // Detects right, but not left
-                    return ValueRC( sensors[1].meanDistance, false );
-                }
-            } else {
-                // Does not detect the right
-                if ( sensors[3].isClose ) {
-                    // Detects left
-                    return ValueRC( sensors[3].meanDistance, true );
-                } else {
-                    // Both have a distance greater than 150
-                    return 0;
-                }
-            }
-        } else if ( sensors[1].isClose && sensors[3].meanDistance == 0 ) {
-            // Detects the right, and the left when it does not detect anything, returns 0
-            return ValueRC( sensors[1].meanDistance, false );
-        } else if ( sensors[1].meanDistance == 0 && sensors[3].isClose ) {
-            // The same but the opposite
-            return ValueRC( sensors[3].meanDistance, true );
-        } else {
-            // Does not detect any. Both at 0
-            return 0;
-        }
-    } else {
-        return 0;
-    }
+bool CheckHeight() {
+    return ( sensors[4].meanDistance < ALT_MIN && sensors[4].meanDistance != 0 );
 }
 
+
+uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB, 
+                                Directions dirA, Directions dirB) 
+{
+    int16_t difference = sensorA.meanDistance - sensorB.meanDistance;
+    if ( abs(difference) > DIST_MIN ) {
+        if ( sensorA.isClose && sensorB.isClose ) { 
+            if ( difference < 0 ) {
+                return ValueRC( sensorA.meanDistance, dirB );
+            } else {
+                return ValueRC( sensorB.meanDistance, dirA );
+            }
+        }
+        
+        if ( sensorA.isClose && !sensorB.isClose ) {
+            return ValueRC( sensorA.meanDistance, dirB );
+        }
+
+        if ( sensorB.isClose ) {
+            return ValueRC( sensorB.meanDistance, dirA );
+        }
+    } else {
+        if ( sensorA.isClose && sensorB.meanDistance == 0 ) {
+            return ValueRC( sensorA.meanDistance, dirB );
+        } 
+        
+        if ( sensorA.meanDistance == 0 && sensorB.isClose ) {
+            return ValueRC( sensorB.meanDistance, dirA );
+        }
+    }
+
+    return 0;
+}
 
 
 // Returns an output value depending on the distance
 // The greater the distance, the lower the need for movement.
-// The variable "increase" is to know in which direction it is.
-uint16_t ValueRC( uint16_t distance, bool increase ) {
+// The variable "direction" is to know in which direction it is.
+uint16_t ValueRC( uint16_t distance, Directions direction ) {
+
+    // distance range
+    static int16_t values[] = { 150, 100, 50 };
+
+    // direction
+    static int16_t signs[] = {
+        //  Front,  Right,  Back,   Left    
+            -1,     1,      1,      -1
+    };
+
+    uint8_t distanceRange;
     if ( distance < 30 ) {
-        if ( increase ) {
-            return( 1700 );
-        } else {
-            return( 1300 );
-        }
+        distanceRange = 0;
     } else if ( distance < 90 ) {
-        if ( increase ) {
-            return( 1675 );
-        } else {
-            return( 1325 );
-        }
+        distanceRange = 1;
     } else if ( distance < 150 ) {
-        if ( increase ) {
-            return( 1650 );
-        } else {
-            return( 1350 );
-        }
+        distanceRange = 2;
     }
+
+    return ZERO_RC_VALUE + values[distanceRange] * signs[direction];
 }
 
 
-
+// TODO: rewrite this
 void CompensationInertia() {
 
     if (pitchOut > 1500 && (!sensors[0].isActive) && (!sensors[2].isActive)) {

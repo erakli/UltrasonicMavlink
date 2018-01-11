@@ -1,22 +1,16 @@
+#include "defines.h"
+#include "variables.h"              // Sensors
+#include "functions.h"
 #include "SerialCommunication.h"    // OpenPorts()
 #include "LED.h"                    // LED_init()
-#include "functions.h"
-#include "variables.h"              // Sensors
-
-// includes of Arduino's libraries. This is for other files
-#include <NewPing.h>
-#include "mavlink/ardupilotmega/mavlink.h" // Mavlink interface 
-#include "mavlink/mavlink_types.h"
-
-#define BAUDRATE 57600
 
 void setup() {
-    OpenPorts(BAUDRATE);
+    OpenPorts();
     LED_init();
 }
 
 void loop() {
-    FHeartBeat();
+    // FHeartBeat();    // NB: don't know, why do this
     sensors.MakeMeasureCycle();
-    FRCOverride(); // TODO: commented
+    FRCOverride();     
 }

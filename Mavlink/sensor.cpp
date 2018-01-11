@@ -1,19 +1,13 @@
 #include "sensor.h"
 
 #include <NewPing.h>
+#include "defines.h"
+#include "pins.h"
 #include "variables.h"
 
 #ifdef DEBUG_SENSORS
 #include "SerialCommunication.h"
-
-const uint16_t TIME_DELTA = 2000;
 #endif
-
-#define MIN_DIST 300
-#define MIN_HEIGHT 100
-
-// Distance from which control begins to act
-#define CONTROL_DISTANCE_MIN  100 
 
 /* Initialization of the sensor pins. Library "NewPing"
    NewPing NAME (Trigger, Echo, MAXDIST);
@@ -21,11 +15,11 @@ const uint16_t TIME_DELTA = 2000;
    If any Echo returns a value greater than said distance, it is automatically discarded*/
 
 NewPing sonars[] = {
-    NewPing(4, 5, MIN_DIST),    // Front
-    NewPing(8, 9, MIN_DIST),    // Right
-    NewPing(24, 25, MIN_DIST),  // Rear
-    NewPing(27, 28, MIN_DIST),  // Left
-    NewPing(46, 47, MIN_DIST)   // Bottom
+    NewPing(FRONT_TRIGGER,  FRONT_ECHO,  MIN_DIST),  // Front
+    NewPing(RIGHT_TRIGGER,  RIGHT_ECHO,  MIN_DIST),  // Right
+    NewPing(BACK_TRIGGER,   BACK_ECHO,   MIN_DIST),  // Back
+    NewPing(LEFT_TRIGGER,   LEFT_ECHO,   MIN_DIST),  // Left
+    NewPing(BOTTOM_TRIGGER, BOTTOM_ECHO, MIN_HEIGHT) // Bottom // NB: here we use MIN_HEIGHT
 };
 
 
@@ -44,14 +38,13 @@ void Sensor::EvalMeanDist() {
     int total = 0;
     uint8_t num = 0;
     for (uint8_t i = 0; i < NDistances; i++) {
-        // NB: second statement is meaningless
-        if (distances[i] != 0  && distances[i] < MIN_DIST) {
+        if (distances[i] != 0) {
             total += distances[i];
-            num += 1;
+            num++;
         }
     }
 
-    if (num > 3) {
+    if (num > MEAN_MIN_NUM) {
         meanDistance = total / num;
     } else {
         meanDistance = 0;
@@ -113,7 +106,7 @@ void Sensors::Print() {
 #ifdef DEBUG_SENSORS
     static unsigned long lastTime = 0;
 
-    if (millis() - lastTime > TIME_DELTA)
+    if (millis() - lastTime > 100)
     {
         COM_PORT.print("\n\rDistances:\n\r");
         String names[] = { "front", "right", "back", "left", "bottom" };
@@ -123,15 +116,15 @@ void Sensors::Print() {
             COM_PORT.print(" = ");
             COM_PORT.print(sensors_[i].meanDistance);
             COM_PORT.print(" (");
-            COM_PORT.print(sensors_[i].isClose);
+            COM_PORT.print( (sensors_[i].isClose) ? "close" : "not close" );
             COM_PORT.print("), ");
-            // COM_PORT.print(" ), raw = ");
-            // COM_PORT.print(sensors_[i].distances[0]); COM_PORT.print(", ");
-            // COM_PORT.print(sensors_[i].distances[1]); COM_PORT.print(", ");
-            // COM_PORT.print(sensors_[i].distances[2]); COM_PORT.print(", ");
-            // COM_PORT.print(sensors_[i].distances[3]); COM_PORT.print(", ");
-            // COM_PORT.print(sensors_[i].distances[4]); COM_PORT.print(", ");
-            // COM_PORT.print("\n\r");
+
+            // COM_PORT.print(" raw: ");
+            // for (uint8_t j = 0; j < NDistances; j++) {
+            //     COM_PORT.print(sensors_[i].distances[j]); COM_PORT.print(", ");
+            // }
+
+            COM_PORT.print("\n\r");
         }
 
         COM_PORT.print("\n\r");

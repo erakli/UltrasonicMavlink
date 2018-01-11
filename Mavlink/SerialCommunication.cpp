@@ -1,6 +1,10 @@
 #include "SerialCommunication.h"
 
-void OpenPorts(unsigned long baudrate) {
-    APM_PORT.begin(baudrate);
-    COM_PORT.begin(baudrate);
+#include "constants.h"
+
+void OpenPorts() {
+    APM_PORT.begin(APM_BAUDRATE);
+    COM_PORT.begin(COM_BAUDRATE);
+
+    COM_PORT.println("Initialized.");
 }

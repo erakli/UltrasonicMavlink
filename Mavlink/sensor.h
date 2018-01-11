@@ -2,6 +2,7 @@
 #define SENSOR_H
 
 #include <stdint.h> // uint16_t, etc
+#include "constants.h"
 
 // if Arduino IDE is too old we need do some work around
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 7)
@@ -9,7 +10,6 @@
 #endif
 
 
-#define NDistances   5
 
 // Struct for saving the data of each sensor
 class Sensor {
@@ -36,9 +36,6 @@ public:
 };
 
 
-
-// The variables of each sensor are created
-#define NSensors 5
 
 class Sensors {
 public:
