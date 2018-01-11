@@ -4,6 +4,8 @@
 #include "SerialCommunication.h"    // OpenPorts()
 #include "LED.h"                    // LED_init()
 
+bool inTakeOff = false;
+
 void setup() {
     OpenPorts();
     LED_init();
@@ -12,5 +14,21 @@ void setup() {
 void loop() {
     // FHeartBeat();    // NB: don't know, why do this
     sensors.MakeMeasureCycle();
-    FRCOverride();     
+
+    if (inTakeOff) {
+        inTakeOff = ( !TakeOffCheck() );
+    }
+
+    if (!COM_PORT.available()) {
+        FRCOverride();     
+    } else {
+        int command = COM_PORT.parseInt();
+        COM_PORT.println(command);
+        if (command == 5) {
+            int height = COM_PORT.parseInt();
+            COM_PORT.println(height);
+            TakeOffInit(height);
+            inTakeOff = true;
+        }
+    }
 }

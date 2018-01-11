@@ -7,7 +7,7 @@
 #define NSensors 5
 
 #define MIN_DIST 400
-#define MIN_HEIGHT 50
+#define MIN_HEIGHT 150
 
 #define CONTROL_DISTANCE_MIN  100 // Distance from which control begins to act
 
@@ -37,6 +37,12 @@
 // functions ------------------------------------------------------------
 
 #define STABLE_CHANNEL_VALUE_COUNT 4
+
+#define PID_P   1
+#define PID_I   0
+#define PID_D   1
+
+#define TAKE_OFF_EPSILON    10  // cm
 
 // SerialCommunication --------------------------------------------------
 
