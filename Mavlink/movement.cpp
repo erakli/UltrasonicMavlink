@@ -110,6 +110,7 @@ uint16_t ValueRC( uint16_t distance, Directions direction ) {
 }
 
 
+
 // TODO: rewrite this
 void CompensationInertia() {
 

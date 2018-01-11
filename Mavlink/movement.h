@@ -6,7 +6,8 @@
 
 enum Channels {
     Channel_Pitch,
-    Channel_Roll
+    Channel_Roll,
+    Channel_Throttle
 };
 
 enum Directions {

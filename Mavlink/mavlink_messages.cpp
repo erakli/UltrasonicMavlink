@@ -5,7 +5,6 @@
 
 #include "defines.h"
 #include "constants.h"
-#include "variables.h"
 #include "LED.h"
 #include "SerialCommunication.h"
 
@@ -34,12 +33,12 @@ void HeartBeat() {
   Channel 3 = Throttle
   Channel 4 = Yaw*/
 
-void RCOverride() {
+void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) {
     // Package and send calculated Pitch and Roll data. Only send if the data is new
     mavlink_message_t msg;
     mavlink_msg_rc_channels_override_pack(
         SYSTEM_ID, COMPONENT_ID, &msg, TARGET_SYSTEM, TARGET_COMPONENT, 
-        rollOut, pitchOut, CHAN3_RAW, CHAN4_RAW, 
+        roll, pitch, throttle, yaw, 
         CHAN5_RAW, CHAN6_RAW, CHAN7_RAW, CHAN8_RAW);
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
@@ -54,10 +53,13 @@ void RCOverride() {
     COM_PORT.print("time: ");
     COM_PORT.print(millis());
     COM_PORT.print(", Pitch: ");
-    COM_PORT.print(pitchOut);
-    COM_PORT.print(",");
-    COM_PORT.print(" Roll: ");
-    COM_PORT.print(rollOut);
+    COM_PORT.print(pitch);
+    COM_PORT.print(", Roll: ");
+    COM_PORT.print(roll);
+    COM_PORT.print(", Throttle: ");
+    COM_PORT.print(throttle);
+    COM_PORT.print(", Yaw: ");
+    COM_PORT.print(yaw);
 #endif
 }
 

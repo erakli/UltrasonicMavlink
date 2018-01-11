@@ -28,8 +28,7 @@
 
 #define TARGET_SYSTEM    1
 #define TARGET_COMPONENT 0
-#define CHAN3_RAW        0
-#define CHAN4_RAW        0
+
 #define CHAN5_RAW        0
 #define CHAN6_RAW        0
 #define CHAN7_RAW        0

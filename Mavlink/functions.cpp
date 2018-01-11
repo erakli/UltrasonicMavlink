@@ -54,7 +54,7 @@ void FRCOverride() {
         if (n > STABLE_CHANNEL_VALUE_COUNT) {
             rollOut = rollOutTemp;
             pitchOut = pitchOutTemp;
-            RCOverride();
+            RCOverride(rollOut, pitchOut);
         }
         n++;
     } else {
