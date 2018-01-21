@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib as mpl
 from collections import deque
+import time
+import sys
 import serial
 
 # оптмиизации
@@ -33,7 +35,7 @@ lines_data = []
 for i in range(series_num):
     lines_data.append(deque([0] * series_size))
 
-port_name = 'COM16'
+port_name = 'COM6'
 port = serial.Serial(port_name, 9600, timeout=1)
 
 print('reading from serial port {0}...'.format(port_name))
@@ -66,7 +68,8 @@ def update_func(data):
         line_obj.set_data(time_series, y_vals)
 
     update_limits(t, max(new_data))
-    plt.pause(0.00000001)
+    # plt.pause(0.00000001)
+    time.sleep(0.001)
 
     return tuple(lines)  # return an iterable of artists from animate
 
@@ -77,11 +80,10 @@ def data_gen():
     while True:
         t += 1
         try:
-            raw_data = port.readline().rstrip()
-            val_list = raw_data.replace(b'\t', b'').split(b',')
+            raw_data = port.readline().rstrip()  # .replace(b'\t', b'')
+            val_list = raw_data.split(b',')
             new_data = [float(val) for val in val_list if val != b'']
-        except:
-            print('except')
+        except ValueError:
             new_data = tuple([0] * series_num)
         yield t, tuple(new_data)  # вот эта строчка будет генерировать данные наружу
 
@@ -90,8 +92,14 @@ def data_gen():
 
 print('plotting data...')
 
-ani = animation.FuncAnimation(fig, update_func, frames=data_gen, interval=0, blit=True)
-plt.show()
+try:
+    ani = animation.FuncAnimation(fig, update_func, frames=data_gen, interval=0, blit=True)
+    plt.show()
+except Exception:
+    print('got exception with message: {0}'.format(sys.exc_info()))
+    plt.close()
+
+print('closing port...')
 
 port.flush()
 port.close()
