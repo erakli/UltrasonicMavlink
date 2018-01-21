@@ -3,13 +3,15 @@
 
 // Sensors --------------------------------------------------------------
 
-#define NDistances   10
-#define NSensors 5
+#define DISTANCES_NUM 10
+#define SONAR_NUM 5
 
-#define MIN_DIST 400
-#define MIN_HEIGHT 150
+#define MIN_DIST 250
+#define MIN_HEIGHT 50
 
-#define CONTROL_DISTANCE_MIN  100 // Distance from which control begins to act
+#define PING_INTERVAL 50
+
+#define CONTROL_DISTANCE_MIN  150 // Distance from which control begins to act
 
 #define MEAN_MIN_NUM 3
 
@@ -36,7 +38,7 @@
 
 // functions ------------------------------------------------------------
 
-#define STABLE_CHANNEL_VALUE_COUNT 4
+#define STABLE_CHANNEL_VALUE_COUNT 3
 
 // #define PID_P   1
 // #define PID_I   0
@@ -47,6 +49,10 @@
 // SerialCommunication --------------------------------------------------
 
 #define APM_BAUDRATE 57600
-#define COM_BAUDRATE 57600
+#define COM_BAUDRATE 9600
+
+// DEBUG output ---------------------------------------------------------
+
+#define SENSORS_OUTPUT_TIME 100
 
 #endif
