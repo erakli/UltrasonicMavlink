@@ -6,7 +6,7 @@
 // on Arduino Mega we have several serial ports, so define
 // macro to make affinity
 #define APM_PORT    Serial2
-#define COM_PORT    Serial
+#define COM_PORT    Serial1
 
 void OpenPorts();
 
