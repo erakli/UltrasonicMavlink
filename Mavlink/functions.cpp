@@ -1,7 +1,7 @@
 #include "functions.h"
 
 #include <Arduino.h>    // millis()
-#include <pid_v1.h>
+// #include <PID_v1.h>
 #include "defines.h"
 #include "constants.h"
 #include "variables.h"
@@ -66,35 +66,35 @@ void FRCOverride() {
 
 
 
-//Define Variables we'll be connecting to
-double Setpoint, Input, Output;
+// //Define Variables we'll be connecting to
+// double Setpoint, Input, Output;
 
-//Specify the links and initial tuning parameters
-PID myPID(&Input, &Output, &Setpoint, PID_P, PID_I, PID_D, DIRECT);
+// //Specify the links and initial tuning parameters
+// PID myPID(&Input, &Output, &Setpoint, PID_P, PID_I, PID_D, DIRECT);
 
 
-void TakeOffInit(uint16_t height) {
-    //initialize the variables we're linked to
-    Input = sensors[4].meanDistance;
-    Setpoint = height;
+// void TakeOffInit(uint16_t height) {
+//     //initialize the variables we're linked to
+//     Input = sensors[4].meanDistance;
+//     Setpoint = height;
 
-    //turn the PID on
-    myPID.SetMode(AUTOMATIC);
-    myPID.SetOutputLimits(1300, 1600);
-}
+//     //turn the PID on
+//     myPID.SetMode(AUTOMATIC);
+//     myPID.SetOutputLimits(1300, 1600);
+// }
 
-bool TakeOffCheck() {
-    if (abs(Setpoint - sensors[4].meanDistance) < TAKE_OFF_EPSILON)
-        return true;
+// bool TakeOffCheck() {
+//     // if (abs(Setpoint - sensors[4].meanDistance) < TAKE_OFF_EPSILON)
+//     //     return true;
 
-    //initialize the variables we're linked to
-    Input = sensors[4].meanDistance;
-    myPID.Compute();
+//     //initialize the variables we're linked to
+//     Input = sensors[4].meanDistance;
+//     myPID.Compute();
 
-    RCOverride(0, 0, Output, 0);
-    // COM_PORT.print(sensors[4].meanDistance);
-    // COM_PORT.print(", ");
-    // COM_PORT.println(Output);
+//     RCOverride(0, 0, Output, 0);
+//     // COM_PORT.print(sensors[4].meanDistance);
+//     // COM_PORT.print(", ");
+//     // COM_PORT.println(Output);
 
-    return false;
-}
+//     return false;
+// }

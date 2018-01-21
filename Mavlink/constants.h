@@ -38,11 +38,11 @@
 
 #define STABLE_CHANNEL_VALUE_COUNT 4
 
-#define PID_P   1
-#define PID_I   0
-#define PID_D   1
+// #define PID_P   1
+// #define PID_I   0
+// #define PID_D   1
 
-#define TAKE_OFF_EPSILON    10  // cm
+// #define TAKE_OFF_EPSILON    10  // cm
 
 // SerialCommunication --------------------------------------------------
 

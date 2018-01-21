@@ -10,7 +10,7 @@ void FHeartBeat();
 // detected by the sensors
 void FRCOverride();
 
-void TakeOffInit(uint16_t height);
-bool TakeOffCheck();
+// void TakeOffInit(uint16_t height);
+// bool TakeOffCheck();
 
 #endif
