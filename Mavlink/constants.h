@@ -54,5 +54,7 @@
 // DEBUG output ---------------------------------------------------------
 
 #define SENSORS_OUTPUT_TIME 100
+#define RC_COMMANDS_OUTPUT_TIME 100
+#define HEARTBEAT_OUTPUT_TIME 1000
 
 #endif

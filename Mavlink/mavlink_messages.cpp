@@ -49,7 +49,6 @@ void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) 
     LED_change_state();
     
 #ifdef DEBUG_MAVLINK
-    COM_PORT.print("\n\r");
     COM_PORT.print("time: ");
     COM_PORT.print(millis());
     COM_PORT.print(", Pitch: ");
@@ -60,6 +59,7 @@ void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) 
     COM_PORT.print(throttle);
     COM_PORT.print(", Yaw: ");
     COM_PORT.print(yaw);
+    COM_PORT.println();
 #endif
 }
 

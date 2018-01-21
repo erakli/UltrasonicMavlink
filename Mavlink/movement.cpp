@@ -112,64 +112,64 @@ uint16_t ValueRC( uint16_t distance, Directions direction ) {
 
 
 // TODO: rewrite this
-void CompensationInertia() {
+// void CompensationInertia() {
 
-    if (pitchOut > 1500 && (!sensors[0].isActive) && (!sensors[2].isActive)) {
-        sensors[0].isActive = true;
-    } else if (pitchOut < 1500 && pitchOut != 0 && (!sensors[2].isActive) && (!sensors[0].isActive)) {
-        sensors[2].isActive = true;
-    } else if (pitchOut == 0 && sensors[0].isActive && sensors[0].compensateTime == 0) {
-        sensors[0].compensateTime = millis();
-    } else if (pitchOut == 0 && sensors[2].isActive && sensors[2].compensateTime == 0) {
-        sensors[2].compensateTime = millis();
-    }
+//     if (pitchOut > 1500 && (!sensors[0].isActive) && (!sensors[2].isActive)) {
+//         sensors[0].isActive = true;
+//     } else if (pitchOut < 1500 && pitchOut != 0 && (!sensors[2].isActive) && (!sensors[0].isActive)) {
+//         sensors[2].isActive = true;
+//     } else if (pitchOut == 0 && sensors[0].isActive && sensors[0].compensateTime == 0) {
+//         sensors[0].compensateTime = millis();
+//     } else if (pitchOut == 0 && sensors[2].isActive && sensors[2].compensateTime == 0) {
+//         sensors[2].compensateTime = millis();
+//     }
 
-    if (rollOut > 1500 && (!sensors[3].isActive) && (!sensors[1].isActive)) {
-        sensors[3].isActive = true;
-    } else if (rollOut < 1500 && rollOut != 0 && (!sensors[1].isActive) && (!sensors[3].isActive)) {
-        sensors[1].isActive = true;
-    } else if (rollOut == 0 && sensors[1].isActive && sensors[1].compensateTime == 0) {
-        sensors[1].compensateTime = millis();
-    } else if (rollOut == 0 && sensors[3].isActive && sensors[3].compensateTime == 0) {
-        sensors[3].compensateTime = millis();
-    }
+//     if (rollOut > 1500 && (!sensors[3].isActive) && (!sensors[1].isActive)) {
+//         sensors[3].isActive = true;
+//     } else if (rollOut < 1500 && rollOut != 0 && (!sensors[1].isActive) && (!sensors[3].isActive)) {
+//         sensors[1].isActive = true;
+//     } else if (rollOut == 0 && sensors[1].isActive && sensors[1].compensateTime == 0) {
+//         sensors[1].compensateTime = millis();
+//     } else if (rollOut == 0 && sensors[3].isActive && sensors[3].compensateTime == 0) {
+//         sensors[3].compensateTime = millis();
+//     }
 
-    for (int i = 0; i < 4; i++) {
-        if (sensors[i].compensateTime != 0 && (sensors[i].compensateTime + COMPENSATION_TIME > millis())) {
-            switch (i) {
-                case 0:
-                    pitch = 1300;
-                    break;
-                case 1:
-                    roll = 1700;
-                    break;
-                case 2:
-                    pitch = 1700;
-                    break;
-                case 3:
-                    roll = 1300;
-                    break;
-                default:
-                    break;
-            }
-        } else if (sensors[i].compensateTime != 0) {
-            switch (i) {
-                case 0:
-                case 2:
-                    pitchOut = 0;
-                    sensors[i].isActive = false;
-                    sensors[i].compensateTime = 0;
-                    break;
-                case 1:
-                case 3:
-                    rollOut = 0;
-                    sensors[i].isActive = false;
-                    sensors[i].compensateTime = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+//     for (int i = 0; i < 4; i++) {
+//         if (sensors[i].compensateTime != 0 && (sensors[i].compensateTime + COMPENSATION_TIME > millis())) {
+//             switch (i) {
+//                 case 0:
+//                     pitch = 1300;
+//                     break;
+//                 case 1:
+//                     roll = 1700;
+//                     break;
+//                 case 2:
+//                     pitch = 1700;
+//                     break;
+//                 case 3:
+//                     roll = 1300;
+//                     break;
+//                 default:
+//                     break;
+//             }
+//         } else if (sensors[i].compensateTime != 0) {
+//             switch (i) {
+//                 case 0:
+//                 case 2:
+//                     pitchOut = 0;
+//                     sensors[i].isActive = false;
+//                     sensors[i].compensateTime = 0;
+//                     break;
+//                 case 1:
+//                 case 3:
+//                     rollOut = 0;
+//                     sensors[i].isActive = false;
+//                     sensors[i].compensateTime = 0;
+//                     break;
+//                 default:
+//                     break;
+//             }
+//         }
+//     }
 
-}
+// }

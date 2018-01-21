@@ -14,11 +14,11 @@
 // Task responsible for sending a HeartBeat every second
 void FHeartBeat() {
     // Variable used to control the HeartBeat sent every second
-    static unsigned long heartbeatTime = 0;
+    static unsigned long lastTime = 0;
 
-    if ( (millis() - heartbeatTime) > 1000 ) {
-        heartbeatTime = millis();
+    if ( (millis() - lastTime) > HEARTBEAT_OUTPUT_TIME ) {
         HeartBeat();
+        lastTime = millis();
     }
 }
 
@@ -32,7 +32,7 @@ void FRCOverride() {
 
 #ifdef DEBUG_RC_COMMANDS
     static unsigned long lastTime = 0;
-    if (millis() - lastTime > 0) {
+    if (millis() - lastTime > RC_COMMANDS_OUTPUT_TIME) {
         COM_PORT.print("pitch = "); 
         COM_PORT.println(pitch);
         COM_PORT.print("roll = "); 

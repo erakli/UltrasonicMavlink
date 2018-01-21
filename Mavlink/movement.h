@@ -26,6 +26,6 @@ uint16_t GetRCValueForSensors(const Sensor &sensorA, const Sensor &sensorB, Dire
 // The variable "direction" is to know in which direction it is.
 uint16_t ValueRC( uint16_t distance, Directions direction );
 
-void CompensationInertia();
+// void CompensationInertia();
 
 #endif
