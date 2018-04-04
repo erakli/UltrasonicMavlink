@@ -1,7 +1,7 @@
 {
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
-    "sketch": "Mavlink\\Mavlink.ino",
+    "sketch": "Mavlink/Mavlink.ino",
     "output": "build",
     "port": "COM6"
 }

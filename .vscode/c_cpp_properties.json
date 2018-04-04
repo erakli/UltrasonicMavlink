@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Arduino",
+            "name": "Arduino-1.8.5",
             "includePath": [
                 "${workspaceRoot}",
                 "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
@@ -9,7 +9,7 @@
                 "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
                 "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
                 "${ARDUINO_DIR}/libraries",
-                "${ARDUINO_LIB}/NewPing",
+                "${ARDUINO_LIB}/arduino-new-ping/src",
                 "${ARDUINO_LIB}/mavlink"
             ],
             "defines": [
@@ -24,11 +24,14 @@
                     "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
                     "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
                     "${ARDUINO_DIR}/libraries",
-                    "${ARDUINO_LIB}/NewPing",
+                    "${ARDUINO_LIB}/arduino-new-ping/src",
                     "${ARDUINO_LIB}/mavlink"
                 ]
             },
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11"
         },
         {
             "name": "Win32",
@@ -41,7 +44,10 @@
                     "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
                 ]
             },
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11"
         }
     ],
     "version": 3
