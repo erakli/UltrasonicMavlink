@@ -4,15 +4,16 @@
 #include "defines.h"
 #include "pins.h"
 
+
 void LED_init() {
-#ifdef LED_INDICATION
+#if LED_INDICATION
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
 #endif
 }
 
 void LED_change_state() {
-#ifdef LED_INDICATION
+#if LED_INDICATION
     static bool state = false;
     if (state)
     {

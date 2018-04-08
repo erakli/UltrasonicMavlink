@@ -1,4 +1,4 @@
-#include "SerialCommunication.h"
+#include "serial_communication.h"
 
 #include "constants.h"
 

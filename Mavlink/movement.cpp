@@ -5,14 +5,14 @@
 #include "constants.h"
 #include "variables.h"
 
-#ifdef DEBUG_MOVEMENT
-#include "SerialCommunication.h"
+#if DEBUG_MOVEMENT
+#include "serial_communication.h"
 #endif
 
 
 uint16_t CheckChannel(Channels channel) {
     if ( CheckHeight() ) {
-#ifdef DEBUG_MOVEMENT
+#if DEBUG_MOVEMENT
         COM_PORT.println("low height");
 #endif
         return 0;
@@ -171,5 +171,4 @@ uint16_t ValueRC( uint16_t distance, Directions direction ) {
 //             }
 //         }
 //     }
-
 // }

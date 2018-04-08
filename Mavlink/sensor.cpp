@@ -5,8 +5,8 @@
 #include "pins.h"
 #include "variables.h"
 
-#ifdef DEBUG_SENSORS
-#include "SerialCommunication.h"
+#if DEBUG_SENSORS
+#include "serial_communication.h"
 #endif
 
 /* Initialization of the sensor pins. Library "NewPing"
@@ -21,7 +21,6 @@ NewPing sonars[] = {
     NewPing(LEFT_TRIGGER,   LEFT_ECHO,   MIN_DIST),  // Left
     NewPing(BOTTOM_TRIGGER, BOTTOM_ECHO, MIN_HEIGHT) // Bottom // NB: here we use MIN_HEIGHT
 };
-
 
 // for non-blocking pings
 uint16_t sonars_cm[SONAR_NUM]; // Sonars results
@@ -91,7 +90,7 @@ Sensors::Sensors()
 
 // NB: callback-function
 // If ping received, set the sensor distance to array.
-void echoCheck() { 
+void echoCheckCallback() { 
   if (sonars[currentSensor].check_timer())
     sonars_cm[currentSensor] = 
         sonars[currentSensor].ping_result / US_ROUNDTRIP_CM;
@@ -112,7 +111,7 @@ void Sensors::MeasureSensors() {
             sonars[currentSensor].timer_stop(); 
             currentSensor = i;
             sonars_cm[currentSensor] = 0; 
-            sonars[currentSensor].ping_timer(echoCheck);
+            sonars[currentSensor].ping_timer(echoCheckCallback);
         }
     }
 }
@@ -148,27 +147,13 @@ void Sensors::CheckDistances() {
 
 
 void Sensors::Print() {
-#ifdef DEBUG_SENSORS
+#if DEBUG_SENSORS
     static unsigned long lastTime = 0;
     if (millis() - lastTime > SENSORS_OUTPUT_TIME)
     {
-        // String names[] = { "front", "right", "back", "left", "bottom" };
-        // COM_PORT.print("dist:\t");
         for (uint8_t i = 0; i < SONAR_NUM; i++) {
-            // COM_PORT.print(names[i]);
-            // COM_PORT.print(" = ");
             COM_PORT.print(sensors_[i].meanDistance);
             COM_PORT.print(",");
-            // COM_PORT.print(" (");
-            // COM_PORT.print( (sensors_[i].isClose) ? "close" : "not close" );
-            // COM_PORT.print("), ");
-
-            // COM_PORT.print(" raw: ");
-            // for (uint8_t j = 0; j < DISTANCES_NUM; j++) {
-            //     COM_PORT.print(sensors_[i].distances[j]); COM_PORT.print(", ");
-            // }
-
-            // COM_PORT.print("\n\r");
         }
 
         COM_PORT.println();

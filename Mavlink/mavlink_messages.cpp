@@ -6,7 +6,7 @@
 #include "defines.h"
 #include "constants.h"
 #include "LED.h"
-#include "SerialCommunication.h"
+#include "serial_communication.h"
 
 
 void HeartBeat() {
@@ -48,7 +48,7 @@ void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) 
 
     LED_change_state();
     
-#ifdef DEBUG_MAVLINK
+#if DEBUG_MAVLINK
     COM_PORT.print("time: ");
     COM_PORT.print(millis());
     COM_PORT.print(", Pitch: ");
