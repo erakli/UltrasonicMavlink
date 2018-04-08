@@ -5,43 +5,25 @@
             "includePath": [
                 "${workspaceRoot}",
                 "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
+                "${ARDUINO_DIR}/hardware/arduino/avr/variants/standard",
                 "${ARDUINO_DIR}/hardware/arduino/cores/arduino",
                 "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
                 "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
                 "${ARDUINO_DIR}/libraries",
+
                 "${ARDUINO_LIB}/arduino-new-ping/src",
                 "${ARDUINO_LIB}/mavlink"
             ],
             "defines": [
-                "ARDUINO=${ARDUINO_VER}"
+                "ARDUINO=100",
+                "__AVR__",
+                "__AVR_ATmega328P__"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": false,
                 "path": [
                     "${workspaceRoot}",
-                    "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
-                    "${ARDUINO_DIR}/hardware/arduino/cores/arduino",
-                    "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
-                    "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
-                    "${ARDUINO_DIR}/libraries",
-                    "${ARDUINO_LIB}/arduino-new-ping/src",
-                    "${ARDUINO_LIB}/mavlink"
-                ]
-            },
-            "intelliSenseMode": "msvc-x64",
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++11"
-        },
-        {
-            "name": "Win32",
-            "includePath": [
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
-            ],
-            "browse": {
-                "limitSymbolsToIncludedHeaders": false,
-                "path": [
-                    "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
+                    "${ARDUINO_LIB}"
                 ]
             },
             "intelliSenseMode": "msvc-x64",
