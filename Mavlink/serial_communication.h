@@ -4,14 +4,18 @@
 #include <Arduino.h>  // Serial..
 #include "defines.h"
 
-#if defined(__AVR_ATmega328P__)
-    #define APM_PORT Serial
-    #define COM_PORT Serial
-#else
+#if defined(__AVR_ATmega2560__)
     // on Arduino Mega we have several serial ports, so define
     // macro to make affinity
     #define APM_PORT    Serial2
     #define COM_PORT    Serial1
+#else
+    #include <SoftwareSerial.h>
+
+    extern SoftwareSerial apmSerial;
+
+    #define APM_PORT apmSerial
+    #define COM_PORT Serial
 #endif
 
 void OpenPorts();
