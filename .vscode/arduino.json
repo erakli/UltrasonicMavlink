@@ -3,5 +3,5 @@
     "configuration": "cpu=atmega328",
     "sketch": "Mavlink/Mavlink.ino",
     "output": "build",
-    "port": "COM6"
+    "port": "/dev/ttyUSB0"
 }

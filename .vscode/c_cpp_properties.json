@@ -23,6 +23,13 @@
                 "limitSymbolsToIncludedHeaders": false,
                 "path": [
                     "${workspaceRoot}",
+                    "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
+                    "${ARDUINO_DIR}/hardware/arduino/avr/variants/standard",
+                    "${ARDUINO_DIR}/hardware/arduino/cores/arduino",
+                    "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
+                    "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
+                    "${ARDUINO_DIR}/libraries",
+                    
                     "${ARDUINO_LIB}"
                 ]
             },
