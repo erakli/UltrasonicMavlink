@@ -16,7 +16,7 @@ void FHeartBeat() {
     // Variable used to control the HeartBeat sent every second
     static unsigned long lastTime = 0;
 
-    if ( (millis() - lastTime) > HEARTBEAT_OUTPUT_TIME ) {
+    if (HEARTBEAT_OUTPUT_TIME < millis() - lastTime) {
         HeartBeat();
         lastTime = millis();
     }
@@ -34,7 +34,7 @@ void FRCOverride() {
 
 #if DEBUG_RC_COMMANDS
     static unsigned long lastTime = 0;
-    if (millis() - lastTime > RC_COMMANDS_OUTPUT_TIME) {
+    if (RC_COMMANDS_OUTPUT_TIME < millis() - lastTime) {
         COM_PORT.print("pitch = "); 
         COM_PORT.println(pitch);
         COM_PORT.print("roll = "); 

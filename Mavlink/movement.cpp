@@ -45,7 +45,7 @@ uint16_t CheckChannel(Channels channel) {
 
 
 bool CheckHeight() {
-    return ( sensors[4].meanDistance < ALT_MIN && sensors[4].meanDistance != 0 );
+    return ( sensors[4].meanDistance < MIN_HEIGHT && sensors[4].meanDistance != 0 );
 }
 
 
@@ -53,7 +53,7 @@ uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB,
                                 Directions dirA, Directions dirB) 
 {
     int16_t difference = sensorA.meanDistance - sensorB.meanDistance;
-    if ( abs(difference) > DIST_MIN ) {
+    if ( abs(difference) > MIN_DISTANCES_DIFFERENCE ) {
         if ( sensorA.isClose && sensorB.isClose ) { 
             if ( difference < 0 ) {
                 return ValueRC( sensorA.meanDistance, dirB );
@@ -86,10 +86,11 @@ uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB,
 // Returns an output value depending on the distance
 // The greater the distance, the lower the need for movement.
 // The variable "direction" is to know in which direction it is.
-uint16_t ValueRC( uint16_t distance, Directions direction ) {
+uint16_t ValueRC( const uint16_t distance, Directions direction ) {
 
     // distance range
-    static int16_t values[] = { 150, 100, 50 };
+    static const uint8_t VALUES_SIZE = 3;
+    static const uint16_t values[] = { 150, 100, 50 };
 
     // direction
     static int16_t signs[] = {
@@ -97,18 +98,18 @@ uint16_t ValueRC( uint16_t distance, Directions direction ) {
             -1,     1,      1,      -1
     };
 
-    uint8_t distanceRange;
-    if ( distance < 30 ) {
-        distanceRange = 0;
-    } else if ( distance < 90 ) {
-        distanceRange = 1;
-    } else if ( distance < 150 ) {
-        distanceRange = 2;
-    }
+    // NB: check
+    uint8_t distanceRange = FindValue(distance, values, VALUES_SIZE);
+    // if ( distance < 30 ) {
+    //     distanceRange = 0;
+    // } else if ( distance < 90 ) {
+    //     distanceRange = 1;
+    // } else if ( distance < 150 ) {
+    //     distanceRange = 2;
+    // }
 
     return ZERO_RC_VALUE + values[distanceRange] * signs[direction];
 }
-
 
 
 // TODO: rewrite this
