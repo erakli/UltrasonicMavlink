@@ -3,7 +3,7 @@
 #include "pins.h"
 #include "constants.h"
 
-#if defined(__AVR_ATmega328P__)
+#if !defined(__AVR_ATmega2560__)
 SoftwareSerial apmSerial(APM_RX, APM_TX);
 #endif
 
