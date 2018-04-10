@@ -3,15 +3,23 @@
 
 #define DEBUG true
 #define USE_MAVLINK false
-#define DO_SENSOR_SMOOTHING false
+#define DISTANCES_SMOOTHING false
+#define USE_PINS_AS_POWER true
 
 #if DEBUG
     #define LED_INDICATION false
     #define DEBUG_SENSORS true
 #endif
 
-#if DO_SENSOR_SMOOTHING
-    #define 
+#if DISTANCES_SMOOTHING
+    #define RUNNING_AVERAGE false
+    #define EXPONENTIAL_MOVING_AVERAGE true
+
+    #if RUNNING_AVERAGE && EXPONENTIAL_MOVING_AVERAGE
+        #error "Cannot use both filter methods"
+    #elif !(RUNNING_AVERAGE || EXPONENTIAL_MOVING_AVERAGE)
+        #error "Should be used one of smoothing methods"
+    #endif
 #endif
 
 #if USE_MAVLINK

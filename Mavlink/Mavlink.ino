@@ -8,12 +8,13 @@
 void setup() {
     OpenPorts();
     LED_init();
+    sensors.Init();
 }
 
 void loop() {
-    FHeartBeat();    // NB: don't know, why do this
+    FHeartBeat();    // NB: don't know, why to do this
     sensors.MeasureSensors();
     FRCOverride();
-    
+
     // delay(1000);
 }

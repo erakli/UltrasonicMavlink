@@ -1,7 +1,6 @@
 #include "sensor.h"
 
 #include <NewPing.h>
-#include "defines.h"
 #include "pins.h"
 #include "variables.h"
 
@@ -15,16 +14,16 @@
    If any Echo returns a value greater than said distance, it is automatically discarded*/
 
 NewPing sonars[] = {
-    NewPing(FRONT_TRIGGER,  FRONT_ECHO,  MIN_DIST),  // Front
-    NewPing(RIGHT_TRIGGER,  RIGHT_ECHO,  MIN_DIST),  // Right
-    NewPing(BACK_TRIGGER,   BACK_ECHO,   MIN_DIST),  // Back
-    NewPing(LEFT_TRIGGER,   LEFT_ECHO,   MIN_DIST),  // Left
-    NewPing(BOTTOM_TRIGGER, BOTTOM_ECHO, MIN_HEIGHT) // Bottom // NB: here we use MIN_HEIGHT
+    NewPing(FRONT_TRIGGER,  FRONT_ECHO,  MAX_SONAR_DISTANCE),       // Front
+    NewPing(RIGHT_TRIGGER,  RIGHT_ECHO,  MAX_SONAR_DISTANCE),       // Right
+    NewPing(BACK_TRIGGER,   BACK_ECHO,   MAX_SONAR_DISTANCE),       // Back
+    NewPing(LEFT_TRIGGER,   LEFT_ECHO,   MAX_SONAR_DISTANCE),       // Left
+    NewPing(BOTTOM_TRIGGER, BOTTOM_ECHO, MAX_SONAR_BOTTOM_DISTANCE) // Bottom
 };
 
 // for non-blocking pings
-uint16_t sonars_cm[SONAR_NUM]; // Sonars results
-uint8_t currentSensor = 0;         // Keeps track of which sensor is active.
+uint16_t sonars_cm[SONAR_NUM];      // Sonars results
+uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
 
 
@@ -35,13 +34,26 @@ Sensor::Sensor()
     // , isActive(false)
     // , compensateTime(0) 
 {
+#if RUNNING_AVERAGE
     for (uint8_t i = 0; i < DISTANCES_NUM; i++) {
         distances[i] = 0;
     }
+#elif EXPONENTIAL_MOVING_AVERAGE
+    distance = 0;
+#endif
+}
+
+
+void Sensor::Init(uint8_t powerPin, uint8_t groundPin) {
+    pinMode(groundPin, OUTPUT);
+    pinMode(powerPin, OUTPUT);
+    digitalWrite(groundPin, LOW);
+    digitalWrite(powerPin, HIGH); 
 }
 
 
 void Sensor::EvalMeanDist() {
+#if RUNNING_AVERAGE
     uint32_t total = 0;
     uint8_t num = 0;
     for (uint8_t i = 0; i < DISTANCES_NUM; i++) {
@@ -56,19 +68,25 @@ void Sensor::EvalMeanDist() {
     } else {
         meanDistance = 0;
     }
+#elif EXPONENTIAL_MOVING_AVERAGE
+    meanDistance = ALPHA * distance + (1.0 - ALPHA) * meanDistance;
+#endif
 }
+
 
 void Sensor::CheckDistance() {
     isClose = (meanDistance != 0 && meanDistance < CONTROL_DISTANCE_MIN);
 }
 
 
+#if RUNNING_AVERAGE
 // Shift each array of distances on one position to the right
 void Sensor::ShiftDistancesArray() {
     for (uint8_t i = DISTANCES_NUM - 1; i > 0; i--) {
         distances[i] = distances[i - 1];
     }
 }
+#endif
 
 
 
@@ -88,12 +106,27 @@ Sensors::Sensors()
 }
 
 
-// NB: callback-function
+void Sensors::Init() {
+#if USE_PINS_AS_POWER
+    uint8_t powerPins[] = {
+        FRONT_POWER, RIGHT_POWER, BACK_POWER, LEFT_POWER, BOTTOM_POWER};
+
+    uint8_t groundPins[] = {
+        FRONT_GROUND, RIGHT_GROUND, BACK_GROUND, LEFT_GROUND, BOTTOM_GROUND};
+
+    for (uint8_t i = 0; i < SONAR_NUM; i++) {
+        sensors_[i].Init(powerPins[i], groundPins[i]);
+    }
+#endif
+}
+
+
 // If ping received, set the sensor distance to array.
 void echoCheckCallback() { 
-  if (sonars[currentSensor].check_timer())
+  if (sonars[currentSensor].check_timer()) {
     sonars_cm[currentSensor] = 
         sonars[currentSensor].ping_result / US_ROUNDTRIP_CM;
+  }
 }
 
 
@@ -119,8 +152,14 @@ void Sensors::MeasureSensors() {
 
 void Sensors::MeasureCycleFinish() {
     for (uint8_t i = 0; i < SONAR_NUM; i++) {
+#if RUNNING_AVERAGE
         sensors_[i].ShiftDistancesArray();
         sensors_[i].distances[0] = sonars_cm[i];
+#elif EXPONENTIAL_MOVING_AVERAGE
+        sensors_[i].distance = sonars_cm[i];
+#else
+        sensors_[i].meanDistance = sonars_cm[i];
+#endif
     }
 
     EvalMeanDistances();
@@ -131,9 +170,11 @@ void Sensors::MeasureCycleFinish() {
 
 // The average of all distances is performed. The 0 are discarded
 void Sensors::EvalMeanDistances() {
+#if DISTANCES_SMOOTHING
     for (uint8_t i = 0; i < SONAR_NUM; i++) {
         sensors_[i].EvalMeanDist();
     }
+#endif
 }
 
 
@@ -149,7 +190,7 @@ void Sensors::CheckDistances() {
 void Sensors::Print() {
 #if DEBUG_SENSORS
     static unsigned long lastTime = 0;
-    if (millis() - lastTime > SENSORS_OUTPUT_TIME)
+    if (SENSORS_OUTPUT_TIME < millis() - lastTime)
     {
         for (uint8_t i = 0; i < SONAR_NUM; i++) {
             COM_PORT.print(sensors_[i].meanDistance);
