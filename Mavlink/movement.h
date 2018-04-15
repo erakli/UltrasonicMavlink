@@ -17,14 +17,14 @@ enum Directions {
     Direction_Left
 };
 
-uint16_t CheckChannel(Channels channel);
+int16_t CheckChannel(Channels channel);
 bool CheckHeight();
-uint16_t GetRCValueForSensors(const Sensor &sensorA, const Sensor &sensorB, Directions dirA, Directions dirB);
+int16_t GetRCValueForSensors(const Sensor &sensorA, const Sensor &sensorB, Directions dirA, Directions dirB);
 
 // Returns an output value depending on the distance
 // The greater the distance, the lower the need for movement.
 // The variable "direction" is to know in which direction it is.
-uint16_t ValueRC( const uint16_t distance, Directions direction );
+int16_t ValueRC( const uint16_t distance, Directions direction );
 
 
 template <typename T, typename IdxType> IdxType FindValue(const T &value, const T values[], const IdxType &size) {

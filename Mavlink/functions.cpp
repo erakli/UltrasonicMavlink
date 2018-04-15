@@ -34,35 +34,41 @@ void FHeartBeat() {
 // Task that sends the motion commands according to the distances detected 
 // by the sensors
 void FRCOverride() {
-    uint16_t calculatedPitch  = CheckChannel(Channel_Pitch);
-    uint16_t calculatedRoll   = CheckChannel(Channel_Roll);
-
-#if DEBUG_RC_COMMANDS
-    static unsigned long lastTime = 0;
-    if (RC_COMMANDS_OUTPUT_TIME < millis() - lastTime) {
-        COM_PORT.print("calculatedPitch = "); 
-        COM_PORT.println(calculatedPitch);
-        COM_PORT.print("calculatedRoll = "); 
-        COM_PORT.println(calculatedRoll);
-        COM_PORT.println();
-
-        lastTime = millis();
-    }
-#endif
+    int16_t calculatedPitch  = CheckChannel(Channel_Pitch);
+    int16_t calculatedRoll   = CheckChannel(Channel_Roll);
 
     // NB: commented
     // CompensationInertia();
    
-    if ( calculatedPitch == desiredPitch && calculatedRoll == desiredRoll ) {
+    if (calculatedPitch == desiredPitch && calculatedRoll == desiredRoll &&
+        (calculatedPitch != 0 || calculatedRoll != 0)) {
         if (STABLE_CHANNEL_VALUE_COUNT < sameDesiredManeuverCount) {
-            uint16_t rollOut = desiredRoll;
-            uint16_t pitchOut = desiredPitch;
+            uint16_t pitchOut = ZERO_RC_VALUE + desiredPitch;
+            uint16_t rollOut = ZERO_RC_VALUE + desiredRoll;
+        #if SOUND_INDICATION
+            if (pitchOut != 0 && rollOut != 0)
+                NewTone(TONE_PIN, 3000, 50);
+            else if (pitchOut != 0)
+                NewTone(TONE_PIN, 2000, 50);
+            else if (rollOut != 0)
+                NewTone(TONE_PIN, 1000, 50);
+        #endif
+        #if DEBUG_RC_COMMANDS
+            static unsigned long lastTime = 0;
+            if (RC_COMMANDS_OUTPUT_TIME < millis() - lastTime) {
+                COM_PORT.print(calculatedPitch);
+                COM_PORT.print(",   ");
+                COM_PORT.print(calculatedRoll);
+                COM_PORT.println();
+
+                lastTime = millis();
+            }
+        #endif
         #if ENABLE_RC_CONTROL
             RCOverride(rollOut, pitchOut);
         #endif
-        #if SOUND_INDICATION
-            NewTone(TONE_PIN, 1500, 100);
-        #endif
+
+        // NOTE: возможно стоит обнулять sameDesiredManeuverCount
         } else {
             sameDesiredManeuverCount++;
         }

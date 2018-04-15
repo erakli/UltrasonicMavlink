@@ -10,7 +10,7 @@
 #endif
 
 
-uint16_t CheckChannel(Channels channel) {
+int16_t CheckChannel(Channels channel) {
     if ( !CheckHeight() ) {
 #if DEBUG_MOVEMENT
         COM_PORT.println("low height");
@@ -49,7 +49,7 @@ bool CheckHeight() {
 }
 
 
-uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB, 
+int16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB, 
                                 Directions dirA, Directions dirB) 
 {
     int16_t difference = sensorA.meanDistance - sensorB.meanDistance;
@@ -86,11 +86,15 @@ uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB,
 // Returns an output value depending on the distance
 // The greater the distance, the lower the need for movement.
 // The variable "direction" is to know in which direction it is.
-uint16_t ValueRC( const uint16_t distance, Directions direction ) {
+int16_t ValueRC( const uint16_t distance, Directions direction ) {
 
     // distance range
     static const uint8_t VALUES_SIZE = 3;
-    static const uint16_t distances[] = { 30, 90, 150 };
+    static const uint16_t distances[] = { 
+        CONTROL_DISTANCE_MIN / 4, 
+        CONTROL_DISTANCE_MIN / 2, 
+        CONTROL_DISTANCE_MIN
+    };
     static const uint16_t pwm_values[] = { 150, 100, 50 };
 
     // direction
@@ -100,7 +104,17 @@ uint16_t ValueRC( const uint16_t distance, Directions direction ) {
     };
 
     uint8_t distanceRange = FindValue(distance, distances, VALUES_SIZE);
-    return ZERO_RC_VALUE + pwm_values[distanceRange] * signs[direction];
+    if (distanceRange < VALUES_SIZE)
+        return pwm_values[distanceRange] * signs[direction];
+
+#if DEBUG_MOVEMENT
+    COM_PORT.print("ValueRC: distance out of control distance (distance = ");
+    COM_PORT.print(distance);
+    COM_PORT.print(", distanceRange = ");
+    COM_PORT.print(distanceRange);
+    COM_PORT.println();
+#endif
+    return 0;
 }
 
 
