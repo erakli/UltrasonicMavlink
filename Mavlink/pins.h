@@ -10,24 +10,24 @@
 
 // LED ------------------------------------------------------------------
 
-#define LED_PIN 10
+#define LED_PIN 13
 
 // Sensors --------------------------------------------------------------
 
-#define FRONT_TRIGGER   11
-#define FRONT_ECHO      12
+#define FRONT_TRIGGER   4
+#define FRONT_ECHO      5
 
-#define RIGHT_TRIGGER   8
-#define RIGHT_ECHO      9
+#define RIGHT_TRIGGER   6
+#define RIGHT_ECHO      7
 
-#define BACK_TRIGGER    24
-#define BACK_ECHO       25
+#define BACK_TRIGGER    8
+#define BACK_ECHO       9
 
-#define LEFT_TRIGGER    27
-#define LEFT_ECHO       28
+#define LEFT_TRIGGER    10
+#define LEFT_ECHO       11
 
-#define BOTTOM_TRIGGER  46
-#define BOTTOM_ECHO     47
+#define BOTTOM_TRIGGER  12
+#define BOTTOM_ECHO     13
 
 #if USE_PINS_AS_POWER
     #define FRONT_POWER     A0
@@ -42,8 +42,8 @@
     #define LEFT_POWER      A6
     #define LEFT_GROUND     A7
 
-    #define BOTTOM_POWER    A0
-    #define BOTTOM_GROUND   A1
+    // #define BOTTOM_POWER    A0
+    // #define BOTTOM_GROUND   A1
 #endif
 
 #endif
