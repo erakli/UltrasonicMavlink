@@ -53,7 +53,7 @@ uint16_t GetRCValueForSensors(  const Sensor &sensorA, const Sensor &sensorB,
                                 Directions dirA, Directions dirB) 
 {
     int16_t difference = sensorA.meanDistance - sensorB.meanDistance;
-    if ( abs(difference) > MIN_DISTANCES_DIFFERENCE ) {
+    if ( MIN_DISTANCES_DIFFERENCE < abs(difference) ) {
         if ( sensorA.isClose && sensorB.isClose ) { 
             if ( difference < 0 ) {
                 return ValueRC( sensorA.meanDistance, dirB );

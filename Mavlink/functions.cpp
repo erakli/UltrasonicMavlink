@@ -9,12 +9,12 @@
 #include "constants.h"
 #include "movement.h"
 #include "mavlink_messages.h"
-
 #include "serial_communication.h"
 
-uint16_t pitchOutTemp = 0;
-uint16_t rollOutTemp  = 0;
+uint16_t desiredPitch = 0;
+uint16_t desiredRoll  = 0;
 uint8_t sameDesiredManeuverCount = 0;
+
 
 // Task responsible for sending a HeartBeat every second
 void FHeartBeat() {
@@ -53,21 +53,22 @@ void FRCOverride() {
     // NB: commented
     // CompensationInertia();
    
-    if ( calculatedPitch == pitchOutTemp && calculatedRoll == rollOutTemp ) {
+    if ( calculatedPitch == desiredPitch && calculatedRoll == desiredRoll ) {
         if (STABLE_CHANNEL_VALUE_COUNT < sameDesiredManeuverCount) {
-            uint16_t rollOut = rollOutTemp;
-            uint16_t pitchOut = pitchOutTemp;
+            uint16_t rollOut = desiredRoll;
+            uint16_t pitchOut = desiredPitch;
         #if ENABLE_RC_CONTROL
             RCOverride(rollOut, pitchOut);
         #endif
         #if SOUND_INDICATION
             NewTone(TONE_PIN, 1500, 100);
         #endif
+        } else {
+            sameDesiredManeuverCount++;
         }
-        sameDesiredManeuverCount++;
     } else {
         sameDesiredManeuverCount = 0;
-        pitchOutTemp = calculatedPitch;
-        rollOutTemp  = calculatedRoll;
+        desiredPitch = calculatedPitch;
+        desiredRoll  = calculatedRoll;
     }
 }

@@ -62,7 +62,7 @@ void Sensor::EvalMeanDist() {
         }
     }
 
-    if (num > MEAN_MIN_NUM) {
+    if (MEAN_MIN_NUM < num) {
         meanDistance = total / num;
     } else {
         meanDistance = 0;
@@ -132,7 +132,7 @@ void echoCheckCallback() {
 // The sensors are measured, and placed in position 0 of each array
 void Sensors::MeasureSensors() {
     for (uint8_t i = 0; i < SONAR_NUM; i++) {
-        if (millis() >= sensors_[i].pingTime) {
+        if (sensors_[i].pingTime <= millis()) {
             sensors_[i].pingTime += PING_INTERVAL * SONAR_NUM;
 
             if (i == 0 && currentSensor == SONAR_NUM - 1) {
