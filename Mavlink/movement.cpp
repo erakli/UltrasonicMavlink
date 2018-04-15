@@ -11,7 +11,7 @@
 
 
 uint16_t CheckChannel(Channels channel) {
-    if ( CheckHeight() ) {
+    if ( !CheckHeight() ) {
 #if DEBUG_MOVEMENT
         COM_PORT.println("low height");
 #endif
@@ -45,7 +45,7 @@ uint16_t CheckChannel(Channels channel) {
 
 
 bool CheckHeight() {
-    return ( sensors[4].meanDistance < MIN_HEIGHT && sensors[4].meanDistance != 0 );
+    return ( MIN_HEIGHT < sensors[4].meanDistance || sensors[4].meanDistance == 0 );
 }
 
 
@@ -90,7 +90,8 @@ uint16_t ValueRC( const uint16_t distance, Directions direction ) {
 
     // distance range
     static const uint8_t VALUES_SIZE = 3;
-    static const uint16_t values[] = { 150, 100, 50 };
+    static const uint16_t distances[] = { 30, 90, 150 };
+    static const uint16_t pwm_values[] = { 150, 100, 50 };
 
     // direction
     static int16_t signs[] = {
@@ -98,17 +99,8 @@ uint16_t ValueRC( const uint16_t distance, Directions direction ) {
             -1,     1,      1,      -1
     };
 
-    // NB: check
-    uint8_t distanceRange = FindValue(distance, values, VALUES_SIZE);
-    // if ( distance < 30 ) {
-    //     distanceRange = 0;
-    // } else if ( distance < 90 ) {
-    //     distanceRange = 1;
-    // } else if ( distance < 150 ) {
-    //     distanceRange = 2;
-    // }
-
-    return ZERO_RC_VALUE + values[distanceRange] * signs[direction];
+    uint8_t distanceRange = FindValue(distance, distances, VALUES_SIZE);
+    return ZERO_RC_VALUE + pwm_values[distanceRange] * signs[direction];
 }
 
 

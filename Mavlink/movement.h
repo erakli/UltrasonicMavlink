@@ -27,9 +27,7 @@ uint16_t GetRCValueForSensors(const Sensor &sensorA, const Sensor &sensorB, Dire
 uint16_t ValueRC( const uint16_t distance, Directions direction );
 
 
-// TEST: not tested
-template <typename T, typename IdxType>
-IdxType FindValue(const T &value, const T values[], const IdxType &size) {
+template <typename T, typename IdxType> IdxType FindValue(const T &value, const T values[], const IdxType &size) {
     for (IdxType i = 0; i < size; i++) {
         if (value < values[i])
             return i;
