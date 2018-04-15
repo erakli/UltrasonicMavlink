@@ -3,3 +3,4 @@ plotting/.idea/*
 mavlink
 
 *.autosave
+*.csv

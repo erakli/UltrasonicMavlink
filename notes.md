@@ -11,6 +11,10 @@ Setting pin 19 (A5) as HIGH and pin 18 (A4) as LOW provides the 5V with few mill
     digitalWrite(powerpin, HIGH); 
 
 
+# URM37 v3.2
+Note: them doesn't need any configuration or mode change to work with NewPing library. Just connect Trig and PWM pins and that's it.
+
+
 # HC-05 bluetooth module
 Specifications:
 Bluetooth protocol: Bluetooth Specification v2.0 + EDR

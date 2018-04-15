@@ -1,6 +1,10 @@
 https://help.ubuntu.com/community/EnvironmentVariables
 https://github.com/Microsoft/vscode-cpptools/issues/1284
 
+# processing
+https://stackoverflow.com/questions/17010222/how-do-i-append-text-to-a-csv-txt-file-in-processing
+https://forum.processing.org/two/discussion/561/easiest-way-to-append-to-a-file-in-processing
+
 [ultrasonic]
 http://ardupilot.org/copter/docs/sonar.html
 https://www.maxbotix.com/documents/XL-MaxSonar-EZ_Datasheet.pdf
