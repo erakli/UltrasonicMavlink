@@ -7,20 +7,20 @@
 
 #define SONAR_NUM 5
 
-#define MAX_SONAR_DISTANCE 250
-#define MAX_SONAR_BOTTOM_DISTANCE 50
-
 #define PING_INTERVAL 50    // interval between each sensor ping
 
-#define CONTROL_DISTANCE_MIN  (MAX_SONAR_DISTANCE - 100) // Distance from which control begins to act
+#define MAX_SONAR_DISTANCE          300
+#define MAX_SONAR_BOTTOM_DISTANCE   50
 
-#if CONTROL_DISTANCE_MIN <= 0
+#define CONTROL_DISTANCE_MIN  60 // Distance from which control begins to act
+
+#if MAX_SONAR_DISTANCE < CONTROL_DISTANCE_MIN
     #error "CONTROL_DISTANCE_MIN is not usable"
 #endif
 
 #if RUNNING_AVERAGE
-    #define DISTANCES_NUM 10
-    #define MEAN_MIN_NUM 3
+    #define DISTANCES_NUM   10
+    #define MEAN_MIN_NUM    3
 #elif EXPONENTIAL_MOVING_AVERAGE
     #define ALPHA 0.5
 #endif
@@ -48,7 +48,7 @@
 
 // functions ------------------------------------------------------------
 
-#define STABLE_CHANNEL_VALUE_COUNT 3
+#define STABLE_CHANNEL_VALUE_COUNT 5
 
 // serial_communication --------------------------------------------------
 
@@ -60,9 +60,9 @@
 // DEBUG output ---------------------------------------------------------
 
 #if DEBUG
-    #define SENSORS_OUTPUT_TIME 0
+    #define SENSORS_OUTPUT_TIME     500
     #define RC_COMMANDS_OUTPUT_TIME 100
-    #define HEARTBEAT_OUTPUT_TIME 1000
+    #define HEARTBEAT_OUTPUT_TIME   1000
 #endif
 
 #endif
