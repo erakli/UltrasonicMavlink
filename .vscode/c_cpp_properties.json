@@ -5,13 +5,19 @@
             "includePath": [
                 "${workspaceRoot}",
                 "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
+                "${ARDUINO_DIR}/hardware/arduino/avr/libraries",
                 "${ARDUINO_DIR}/hardware/arduino/avr/variants/standard",
                 "${ARDUINO_DIR}/hardware/arduino/cores/arduino",
+
                 "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
                 "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
+
                 "${ARDUINO_DIR}/libraries",
 
+                "${ARDUINO_DIR}/hardware/arduino/avr/libraries/SoftwareSerial/src",
+
                 "${ARDUINO_LIB}/arduino-new-ping/src",
+                "${ARDUINO_LIB}/arduino-new-tone",
                 "${ARDUINO_LIB}/mavlink"
             ],
             "defines": [
@@ -20,16 +26,10 @@
                 "__AVR_ATmega328P__"
             ],
             "browse": {
-                "limitSymbolsToIncludedHeaders": false,
+                "limitSymbolsToIncludedHeaders": true,
                 "path": [
                     "${workspaceRoot}",
-                    "${ARDUINO_DIR}/hardware/arduino/avr/cores/arduino",
-                    "${ARDUINO_DIR}/hardware/arduino/avr/variants/standard",
-                    "${ARDUINO_DIR}/hardware/arduino/cores/arduino",
-                    "${ARDUINO_DIR}/hardware/tools/avr/avr/include",
-                    "${ARDUINO_DIR}/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
-                    "${ARDUINO_DIR}/libraries",
-                    
+                    "${ARDUINO_DIR}",
                     "${ARDUINO_LIB}"
                 ]
             },

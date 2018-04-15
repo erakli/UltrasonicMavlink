@@ -6,8 +6,8 @@
 
 // Variables used to send only one RCOverride at a time
 // to be modified, and not to saturate the redundant order controller
-extern uint16_t pitch;
-extern uint16_t roll;
+extern uint16_t calculatedPitch;
+extern uint16_t calculatedRoll;
 extern uint16_t pitchOut;
 extern uint16_t rollOut;
 

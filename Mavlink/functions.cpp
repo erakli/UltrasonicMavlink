@@ -2,6 +2,10 @@
 
 #include <Arduino.h>    // millis()
 #include "defines.h"
+#if !USE_MAVLINK && DEBUG
+    #include <NewTone.h>
+    #define TONE_PIN 2
+#endif
 #include "constants.h"
 #include "variables.h"
 #include "movement.h"
@@ -9,6 +13,9 @@
 
 #include "serial_communication.h"
 
+uint16_t pitchOutTemp = 0;
+uint16_t rollOutTemp  = 0;
+uint8_t n = 0;
 
 // Task responsible for sending a HeartBeat every second
 void FHeartBeat() {
@@ -28,18 +35,17 @@ void FHeartBeat() {
 // Task that sends the motion commands according to the distances detected 
 // by the sensors
 void FRCOverride() {
-#if ENABLE_RC_CONTROL
-    pitch  = CheckChannel(Channel_Pitch);
-    roll   = CheckChannel(Channel_Roll);
+    calculatedPitch  = CheckChannel(Channel_Pitch);
+    calculatedRoll   = CheckChannel(Channel_Roll);
 
 #if DEBUG_RC_COMMANDS
     static unsigned long lastTime = 0;
     if (RC_COMMANDS_OUTPUT_TIME < millis() - lastTime) {
-        COM_PORT.print("pitch = "); 
-        COM_PORT.println(pitch);
-        COM_PORT.print("roll = "); 
-        COM_PORT.println(roll);
-        COM_PORT.println("\r\n");
+        COM_PORT.print("calculatedPitch = "); 
+        COM_PORT.println(calculatedPitch);
+        COM_PORT.print("calculatedRoll = "); 
+        COM_PORT.println(calculatedRoll);
+        COM_PORT.println();
 
         lastTime = millis();
     }
@@ -47,22 +53,21 @@ void FRCOverride() {
 
     // NB: commented
     // CompensationInertia();
-
-    static uint16_t pitchOutTemp = 0;
-    static uint16_t rollOutTemp  = 0;
-    static uint8_t n = 0;
    
-    if ( pitch == pitchOutTemp && roll == rollOutTemp ) {
+    if ( calculatedPitch == pitchOutTemp && calculatedRoll == rollOutTemp ) {
         if (n > STABLE_CHANNEL_VALUE_COUNT) {
             rollOut = rollOutTemp;
             pitchOut = pitchOutTemp;
+        #if ENABLE_RC_CONTROL
             RCOverride(rollOut, pitchOut);
+        #elif DEBUG
+            NewTone(TONE_PIN, 1500, 100);
+        #endif
         }
         n++;
     } else {
         n = 0;
-        pitchOutTemp = pitch;
-        rollOutTemp  = roll;
+        pitchOutTemp = calculatedPitch;
+        rollOutTemp  = calculatedRoll;
     }
-#endif
 }
