@@ -1,9 +1,13 @@
 import processing.serial.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.util.Date;
+import java.text.*;
 
 
-int axesCount = 1;
-int[] colors = {#FF0000, #00FF00, #0000FF};
-String[] names = {"x", "y", "z"};
+int axesCount = 5;
+int[] colors = {#FF0000, #00FF00, #0000FF, #00FFFF, #FF00FF};
+String[] names = {"FRONT", "RIGHT", "BACK", "LEFT", "BOTTOM"};
 
 PVector origin;
 PVector scaleFactor = new PVector(10, 3);
@@ -13,19 +17,37 @@ int VERTICAL_LINES_NUM = 10;
 
 int maxLength;
 int prevWidth = 0;
-IntList[] graphs = {new IntList(), new IntList(), new IntList()};
+IntList[] graphs = new IntList[axesCount];
 
 Serial myPort;        // The serial port
-String comPortName = "/dev/ttyUSB0"; //"/dev/rfcomm0";/
+String[] comPortName = {"/dev/rfcomm0", "/dev/ttyUSB0"};
+int COM_PORT_NUM = 0;
+
+int VALUES_START_IDX = 1;
 
 boolean needOffset = false;
 int addedValues = 0;
 
 PGraphics pg;
 
+DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
+Date date = new Date();
+
+BufferedWriter output = null;
+String SKETCH_PATH;
+String fileName;
+
 
 void setup() {
-  myPort = new Serial(this, comPortName, 57600);
+  for (int i = 0; i < axesCount; i++)
+    graphs[i] = new IntList(); //<>//
+  
+  // should not be executed outside Processing functions, because it points 
+  // to processing root, not to sketch root
+  SKETCH_PATH = sketchPath("");
+  fileName = SKETCH_PATH + dateFormat.format(date) + ".csv";
+  
+  myPort = new Serial(this, comPortName[COM_PORT_NUM], 57600);
   myPort.bufferUntil('\n');
   
   size(1000, 700);
@@ -47,6 +69,8 @@ void draw() {
   if (incomingString == null)
     return; 
   
+  writeValues(incomingString);
+  
   boolean needResize = (origin.y != height || prevWidth != width);
   if (origin.y != height) {
     origin.y = height;
@@ -58,11 +82,16 @@ void draw() {
   }
   
   if (needResize) {
-    pg = createGraphics(width, height); //<>//
+    pg = createGraphics(width, height);
   }
   
-  int[] newValues = int(split(incomingString, ','));
-  addNewValues(newValues);
+  int[] newValues = int(split(incomingString, ',')); //<>//
+  
+  // check on values with time as first argument
+  if (newValues.length <= axesCount + VALUES_START_IDX)
+    return;
+    
+  addNewValues(newValues, VALUES_START_IDX);  // add time value
   
   pg.beginDraw();
   drawBackground();   // background resets on new frame 
@@ -70,13 +99,15 @@ void draw() {
   drawLegend();
   pg.endDraw();
   image(pg, 0, 0);
+  
+  println(millis());
 }
 
 
 
-void addNewValues(int[] newValues) {
+void addNewValues(int[] newValues, int valuesStartIdx) {
   for (int i = 0; i < axesCount; i++) {
-    addNewValue(graphs[i], newValues[i]);
+    addNewValue(graphs[i], newValues[i + valuesStartIdx]);
   }
   
   addedValues = (addedValues + 1) % (width);
@@ -84,7 +115,7 @@ void addNewValues(int[] newValues) {
 
 
 void addNewValue(IntList graph, int newValue) {
-  graph.append(newValue);
+  graph.append(newValue); //<>//
   needOffset = (graph.size() >= maxLength);
   while (graph.size() >= maxLength) {
     graph.remove(0);
@@ -112,7 +143,7 @@ void drawGraphs() {
 void drawGraph(IntList graph) {
   float prevX = 0;
   float prevY = (float)graph.get(0) * scaleFactor.y;
-  for (int t = 1; t < graph.size(); t++) {
+  for (int t = 0; t < graph.size(); t++) {
     float curX = t * scaleFactor.x;
     float curY = (float)graph.get(t) * scaleFactor.y;
     pg.line(prevX, prevY, curX, curY);
@@ -194,5 +225,28 @@ void drawLegend() {
     String value = 
       String.format("%s (%d)", names[i], graphs[i].get(graphs[i].size() - 1));
     pg.text(value, 45, 20 + i * 20);
+  }
+}
+
+
+
+void writeValues(String values) {
+  try {
+    //the true will append the new data
+    output = new BufferedWriter(new FileWriter(fileName, true));
+    output.write(values);
+  }
+  catch (IOException e) {
+    println("It Broke");
+    e.printStackTrace();
+  }
+  finally {
+    if (output != null) {
+      try {
+        output.close();
+      } catch (IOException e) {
+        println("Error while closing the writer");
+      }
+    }
   }
 }
