@@ -2,7 +2,6 @@
 
 #include <NewPing.h>
 #include "pins.h"
-#include "variables.h"
 
 #if DEBUG_SENSORS
 #include "serial_communication.h"
@@ -192,13 +191,16 @@ void Sensors::Print() {
     static unsigned long lastTime = 0;
     if (SENSORS_OUTPUT_TIME < millis() - lastTime)
     {
+        lastTime = millis();
+        COM_PORT.print(lastTime);
+        COM_PORT.print(",");
+
         for (uint8_t i = 0; i < SONAR_NUM; i++) {
             COM_PORT.print(sensors_[i].meanDistance);
             COM_PORT.print(",");
         }
 
         COM_PORT.println();
-        lastTime = millis();
     }
 #endif
 }
