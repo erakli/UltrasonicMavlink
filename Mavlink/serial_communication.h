@@ -10,9 +10,12 @@
     #define APM_PORT    Serial2
     #define COM_PORT    Serial1
 #else
-    #include <SoftwareSerial.h>
-
-    extern SoftwareSerial apmSerial;
+    #if USE_MAVLINK
+        #include <SoftwareSerial.h>
+        extern SoftwareSerial apmSerial;
+    #else
+        #define apmSerial Serial
+    #endif
 
     #define APM_PORT apmSerial
     #define COM_PORT Serial

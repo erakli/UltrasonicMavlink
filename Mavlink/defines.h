@@ -8,6 +8,7 @@
 
 #if DEBUG
     #define LED_INDICATION false
+    #define SOUND_INDICATION true
     #define DEBUG_SENSORS true
 #endif
 
@@ -33,7 +34,7 @@
         #if DEBUG_MAVLINK
             #define HEARTBEAT_MESSAGE false
         #endif
-    #endif
+    #endif  
 #endif
 
 #endif

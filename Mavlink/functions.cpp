@@ -2,7 +2,7 @@
 
 #include <Arduino.h>    // millis()
 #include "defines.h"
-#if !USE_MAVLINK && DEBUG
+#if SOUND_INDICATION
     #include <NewTone.h>
     #define TONE_PIN 2
 #endif
@@ -59,7 +59,8 @@ void FRCOverride() {
             uint16_t pitchOut = pitchOutTemp;
         #if ENABLE_RC_CONTROL
             RCOverride(rollOut, pitchOut);
-        #elif DEBUG
+        #endif
+        #if SOUND_INDICATION
             NewTone(TONE_PIN, 1500, 100);
         #endif
         }
