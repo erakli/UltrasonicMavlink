@@ -12,7 +12,9 @@ void setup() {
 }
 
 void loop() {
-    FHeartBeat();    // NB: don't know, why to do this
+    // we need to send heartbeat at least once per second, so the autopilot
+    // now that we (as GSC) are alive
+    FHeartBeat();
     sensors.MeasureSensors();
     FRCOverride();
 

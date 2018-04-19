@@ -78,6 +78,29 @@ You should be able to send and recieve data to and from bluetooth connection wit
 ln -s /srv/git/c_library_v1 mavlink
 
 
+# Mavlink
+* * * 
+Here is the sequence I use do override remote control:
+
+-> Heartbeat - To introduce myself as a ground station ;
+-> Arm Command
+-> Wait a few seconds
+-> Override RC Commands
+
+As a Ground station, I use the sys_id 253.
+
+* * *
+In my investigation I concluded that you need two things to make it works. First of all, you need the correct system ID which is saved onto the APM or PIXHAWK. So, with Mission Planner software you can check this to be sure you are using the correct ID. Here you have a picture example (http://ardupilot.org/copter/docs/parameters.html#sysid-mygcs-my-ground-station-number):
+
+Allows restricting radio overrides to only come from my ground station
+
+Value 	Meaning
+255 	Mission Planner and DroidPlanner
+252 	AP Planner 2
+
+The second thing you have to do is to send a HearBeat message every second or two seconds, if possible. This may inform UAV that you are still there and have not lost the communication. This last step is very important because the Ardupilot have a dedicated Failsafe that checks the communication between the UAV and the GCS if the RC_OVERRIDE command is working.
+
+
 # VS Code properties
 If using Uno/Nano (with ATmega328P), set in c_cpp_properties.json:
     in includePath - "${ARDUINO_DIR}/hardware/arduino/avr/variants/standard
