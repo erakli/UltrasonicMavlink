@@ -34,6 +34,7 @@ void HeartBeat() {
   Channel 4 = Yaw*/
 
 void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) {
+#if ENABLE_RC_CONTROL
     // Package and send calculated Pitch and Roll data. Only send if the data is new
     mavlink_message_t msg;
     mavlink_msg_rc_channels_override_pack(
@@ -45,10 +46,11 @@ void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) 
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
     
     APM_PORT.write(buf, len);
-
-    LED_change_state();
+#endif
     
 #if DEBUG_MAVLINK
+    LED_change_state();
+
     COM_PORT.print("time: ");
     COM_PORT.print(millis());
     COM_PORT.print(", Pitch: ");

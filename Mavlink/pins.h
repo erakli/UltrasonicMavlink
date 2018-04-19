@@ -26,8 +26,8 @@
 #define LEFT_TRIGGER    10
 #define LEFT_ECHO       11
 
-#define BOTTOM_TRIGGER  12
-#define BOTTOM_ECHO     13
+#define BOTTOM_TRIGGER  2
+#define BOTTOM_ECHO     3
 
 #if USE_PINS_AS_POWER
     #define FRONT_POWER     A0
@@ -42,8 +42,8 @@
     #define LEFT_POWER      A6
     #define LEFT_GROUND     A7
 
-    // #define BOTTOM_POWER    A0
-    // #define BOTTOM_GROUND   A1
+    #define BOTTOM_POWER    12
+    #define BOTTOM_GROUND   13
 #endif
 
 #endif

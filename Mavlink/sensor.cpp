@@ -108,12 +108,12 @@ Sensors::Sensors()
 void Sensors::Init() {
 #if USE_PINS_AS_POWER
     uint8_t powerPins[] = {
-        FRONT_POWER, RIGHT_POWER, BACK_POWER, LEFT_POWER};
+        FRONT_POWER, RIGHT_POWER, BACK_POWER, LEFT_POWER, BOTTOM_POWER};
 
     uint8_t groundPins[] = {
-        FRONT_GROUND, RIGHT_GROUND, BACK_GROUND, LEFT_GROUND};
+        FRONT_GROUND, RIGHT_GROUND, BACK_GROUND, LEFT_GROUND, BOTTOM_GROUND};
 
-    for (uint8_t i = 0; i < SONAR_NUM - 1; i++) {
+    for (uint8_t i = 0; i < SONAR_NUM; i++) {
         sensors_[i].Init(powerPins[i], groundPins[i]);
     }
 #endif
