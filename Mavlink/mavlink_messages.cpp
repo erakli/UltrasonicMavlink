@@ -27,16 +27,19 @@ void HeartBeat() {
 }
 
 
-
-/*Channel 1 = Roll
-  Channel 2 = Pitch
-  Channel 3 = Throttle
-  Channel 4 = Yaw*/
-
+// The RAW values of the RC channels sent to the MAV to override 
+// info received from the RC radio.
+// The standard PPM modulation is as follows: 
+// 1000 microseconds: 0%, 2000 microseconds: 100%.
 void RCOverride(uint16_t roll, uint16_t pitch, uint16_t throttle, uint16_t yaw) {
 #if ENABLE_RC_CONTROL
     // Package and send calculated Pitch and Roll data. Only send if the data is new
     mavlink_message_t msg;
+    
+    // Channel 1 = Roll
+    // Channel 2 = Pitch
+    // Channel 3 = Throttle
+    // Channel 4 = Yaw
     mavlink_msg_rc_channels_override_pack(
         SYSTEM_ID, COMPONENT_ID, &msg, TARGET_SYSTEM, TARGET_COMPONENT, 
         roll, pitch, throttle, yaw, 

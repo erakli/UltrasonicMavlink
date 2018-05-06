@@ -1,0 +1,8 @@
+#!/bin/bash
+
+MAVLINK_LINK_NAME="mavlink"
+MAVLINK_PATH="$HOME/git/c_library_v1"
+
+cd Mavlink
+rm -f "$MAVLINK_LINK_NAME"
+ln -s "$MAVLINK_PATH" "$MAVLINK_LINK_NAME"

@@ -23,7 +23,8 @@
             "defines": [
                 "ARDUINO=100",
                 "__AVR__",
-                "__AVR_ATmega328P__"
+                "__AVR_ATmega328P__",
+                "__STDC_LIMIT_MACROS"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

@@ -32,6 +32,8 @@ http://ardupilot.org/copter/docs/ac_rollpitchtuning.html#ac-rollpitchtuning
 
 https://discuss.ardupilot.org/t/running-mission-planner-on-linux/19100
 
+http://ardupilot.org/copter/docs/common-pixhawk-overview.html?#telem1-telem2-ports
+
 [videos]
 https://www.youtube.com/watch?v=kdlhfMiWVV0
 https://www.youtube.com/watch?v=tVW4eI_4qQI

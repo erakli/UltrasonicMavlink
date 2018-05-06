@@ -8,8 +8,12 @@
 #include "mavlink_messages.h"
 #include "serial_communication.h"
 
+// A value of 0 means control of that channel should be released 
+// back to the RC radio.
 #define RELEASE_CONTROL_TO_RC   0
-#define PERSIST_PREVIOUS_VALUE  -1  // UINT_MAX
+
+// A value of UINT16_MAX means no change to that channel. 
+#define PERSIST_PREVIOUS_VALUE  UINT16_MAX
 
 
 // It is a State Machine
@@ -115,8 +119,8 @@ private:
             break;
 
             default:
-                // NB: test, if we send PERSIST_PREVIOUS_VALUE when control is
-                // currently on RC
+                // NOTE: if current control processed from RC, than
+                // PERSIST_PREVIOUS_VALUE doesn't change its behaviour
                 outValue = PERSIST_PREVIOUS_VALUE;
         }
     }
@@ -190,6 +194,7 @@ void FHeartBeat() {
 void FRCOverride() {
     desiredPitch.Eval();
     desiredRoll.Eval();
-    if (desiredPitch.NeedMovement() || desiredRoll.NeedMovement())
+    if (desiredPitch.NeedMovement() || desiredRoll.NeedMovement()) {
         RCOverride(desiredRoll.GetValue(), desiredPitch.GetValue());
+    }
 }

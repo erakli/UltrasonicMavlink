@@ -1,7 +1,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define DEBUG               true
+#define DEBUG               false
 #define USE_MAVLINK         true
 #define DISTANCES_SMOOTHING false
 #define USE_PINS_AS_POWER   true
